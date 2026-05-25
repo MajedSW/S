@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snap - English in Real Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&amp;family=DM+Serif+Display&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0d7377;
+  --teal-dark:#0a5a5d;
+  --gold:#d4a017;
+  --gold-light:#f4c430;
+  --cream:#fdf6e3;
+  --ink:#1a2e2f;
+  --paper:#fffdf7;
+  --soft:#eef5f5;
+  --green:#2d8659;
+  --green-bright:#3ddc84;
+  --red:#c0392b;
+  --warn:#e8b923;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Sora',sans-serif;
+  background:radial-gradient(ellipse at top,#fdf6e3 0%,#eef5f5 60%,#dde9e9 100%);
+  color:var(--ink);
+  min-height:100vh;
+  padding:14px;
+  overflow-x:hidden;
+}
+.wrap{max-width:580px;margin:0 auto}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:8px;
+}
+.brand{
+  font-family:'DM Serif Display',serif;
+  font-size:18px;color:var(--teal);
+}
+.brand span{color:var(--gold)}
+.progress-wrap{flex:1}
+.progress{
+  height:5px;background:rgba(13,115,119,.15);
+  border-radius:99px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--teal),var(--gold));
+  transition:width .4s ease;
+  width:0%;
+}
+.streak{
+  background:var(--paper);
+  padding:5px 12px;border-radius:99px;
+  font-size:13px;font-weight:700;
+  color:var(--gold);
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  min-width:38px;text-align:center;
+}
+
+/* ---------- Tabs ---------- */
+.tabs{
+  display:flex;gap:4px;
+  margin-bottom:10px;
+  overflow-x:auto;
+  padding:4px 2px 8px;
+  scrollbar-width:thin;
+}
+.tabs::-webkit-scrollbar{height:4px}
+.tabs::-webkit-scrollbar-thumb{background:rgba(13,115,119,.25);border-radius:99px}
+.tab{
+  flex-shrink:0;
+  background:var(--paper);
+  border:1.5px solid rgba(13,115,119,.15);
+  padding:7px 12px;
+  border-radius:99px;
+  font-family:'Sora',sans-serif;
+  font-size:11px;font-weight:600;
+  color:#666;cursor:pointer;
+  transition:all .15s;
+  letter-spacing:.3px;
+  white-space:nowrap;
+}
+.tab:hover{border-color:var(--teal);color:var(--teal)}
+.tab.active{
+  background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+  color:var(--paper);
+  border-color:var(--teal);
+  box-shadow:0 3px 10px rgba(13,115,119,.25);
+}
+.tab .tab-num{
+  background:rgba(255,255,255,.2);
+  padding:1px 6px;border-radius:99px;
+  font-size:9px;margin-right:4px;font-weight:700;
+}
+.tab:not(.active) .tab-num{background:var(--soft);color:var(--teal)}
+.tab .tab-done{
+  display:inline-block;width:6px;height:6px;
+  border-radius:50%;
+  background:var(--gold);
+  margin-left:6px;
+  vertical-align:middle;
+  opacity:0;
+  transition:opacity .25s;
+}
+.tab.has-progress .tab-done{opacity:1}
+
+/* ---------- Audio bar ---------- */
+.audio-bar{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:12px;
+  background:var(--paper);
+  padding:6px 10px;
+  border-radius:99px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  font-size:12px;
+}
+.mode-toggle{
+  display:flex;background:var(--soft);
+  border-radius:99px;padding:2px;gap:2px;
+}
+.mode-btn{
+  border:none;background:transparent;
+  padding:5px 12px;border-radius:99px;
+  font-family:'Sora',sans-serif;font-size:11px;
+  font-weight:600;color:#666;cursor:pointer;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.mode-btn.active{
+  background:var(--teal);color:var(--paper);
+  box-shadow:0 2px 6px rgba(13,115,119,.3);
+}
+.audio-bar .spacer{flex:1}
+.icon-btn{
+  background:transparent;
+  border:1.5px solid var(--soft);
+  width:30px;height:30px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--teal);
+  font-weight:700;font-size:12px;
+  transition:all .15s;
+  padding:0;
+}
+.icon-btn:hover{background:var(--soft);border-color:var(--teal)}
+.icon-btn.on{background:var(--teal);color:var(--paper);border-color:var(--teal)}
+.icon-btn.speaking{
+  background:var(--gold);color:var(--ink);border-color:var(--gold);
+  animation:pulse 1s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(212,160,23,.6)}
+  50%{box-shadow:0 0 0 8px rgba(212,160,23,0)}
+}
+.q-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:#bbb;transition:background .25s;
+  flex-shrink:0;margin-left:-2px;margin-right:2px;
+}
+.q-dot.google{background:var(--green-bright);box-shadow:0 0 6px rgba(61,220,132,.7)}
+.q-dot.fallback{background:var(--warn)}
+.speed-btn{
+  background:transparent;border:1.5px solid var(--soft);
+  border-radius:99px;padding:5px 10px;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:11px;
+  color:var(--teal);cursor:pointer;min-width:38px;
+}
+.speed-btn:hover{background:var(--soft)}
+
+/* ---------- Settings popover ---------- */
+.settings-wrap{position:relative}
+.popover{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--paper);border-radius:14px;padding:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+  width:280px;z-index:50;display:none;
+}
+.popover.open{display:block;animation:rise .2s ease}
+.popover h4{
+  font-family:'DM Serif Display',serif;
+  color:var(--teal);font-size:14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.popover h4 .legend-dot{
+  width:8px;height:8px;border-radius:50%;display:inline-block;
+}
+.popover select{
+  width:100%;padding:8px 10px;
+  border:1.5px solid var(--soft);border-radius:8px;
+  font-family:'Sora',sans-serif;font-size:12px;
+  background:var(--paper);color:var(--ink);cursor:pointer;
+}
+.legend{display:flex;gap:14px;margin-top:10px;font-size:10px;color:#777}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block;font-style:normal}
+.legend .g{background:var(--green-bright)}
+.legend .y{background:var(--warn)}
+.popover .hint{font-size:10px;color:#888;margin-top:6px;line-height:1.4}
+
+/* ---------- Stage with side arrows ---------- */
+.stage-wrap{
+  position:relative;display:flex;align-items:stretch;gap:6px;
+}
+.flip-btn{
+  flex-shrink:0;width:36px;
+  background:rgba(255,253,247,.7);
+  border:1.5px solid rgba(13,115,119,.15);
+  border-radius:14px;color:var(--teal);
+  font-size:20px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;align-self:center;height:80px;
+}
+.flip-btn:hover:not(:disabled){
+  background:var(--paper);border-color:var(--teal);
+  transform:scale(1.06);box-shadow:0 4px 12px rgba(13,115,119,.15);
+}
+.flip-btn:disabled{opacity:.25;cursor:default}
+.stage{flex:1;min-width:0;position:relative}
+
+.swipe-hint{
+  position:absolute;bottom:-22px;left:50%;
+  transform:translateX(-50%);
+  font-size:10px;color:#999;
+  letter-spacing:1px;text-transform:uppercase;
+  pointer-events:none;
+  animation:hintFade 4s ease forwards;
+  white-space:nowrap;
+}
+@keyframes hintFade{
+  0%{opacity:0}15%{opacity:.7}70%{opacity:.7}100%{opacity:0}
+}
+
+/* ---------- Moment card ---------- */
+.moment{
+  background:var(--paper);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 6px 24px rgba(13,115,119,.12);
+  animation:rise .3s ease;
+}
+@keyframes rise{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+.tag{
+  padding:8px 16px;
+  background:linear-gradient(90deg,var(--teal),var(--teal-dark));
+  color:var(--paper);font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.tag .where{opacity:.85}
+.tag .scene-num{
+  background:rgba(255,255,255,.2);
+  padding:2px 8px;border-radius:99px;
+  font-weight:600;font-size:9px;letter-spacing:1px;
+}
+.tag .again{
+  background:var(--gold);color:var(--ink);
+  padding:2px 8px;border-radius:99px;
+  font-weight:700;font-size:9px;
+}
+.tag .meta{display:flex;gap:6px;align-items:center}
+
+.body{padding:22px 18px 18px}
+
+.listen-pad{
+  background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+  color:var(--paper);border-radius:14px;
+  padding:30px 20px;text-align:center;margin-bottom:6px;
+}
+.listen-pad .ear{
+  font-family:'DM Serif Display',serif;
+  font-size:36px;margin-bottom:8px;
+}
+.listen-pad p{font-size:13px;opacity:.85;margin-bottom:14px}
+.big-replay{
+  background:var(--gold);color:var(--ink);border:none;
+  padding:12px 28px;border-radius:99px;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:14px;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+}
+.big-replay:hover{background:var(--gold-light)}
+.big-replay.speaking{animation:pulse 1s ease-in-out infinite}
+
+.bubble{
+  background:var(--soft);
+  padding:12px 16px;border-radius:16px;
+  border-top-left-radius:4px;margin-bottom:8px;
+  font-size:16px;line-height:1.45;max-width:88%;
+  position:relative;transition:all .25s;
+}
+.bubble.right{
+  background:linear-gradient(135deg,var(--cream),#fdecc7);
+  border-top-left-radius:16px;border-top-right-radius:4px;
+  margin-left:auto;
+}
+.bubble.now-playing{box-shadow:0 0 0 3px var(--gold);transform:scale(1.02)}
+.who{
+  font-size:11px;font-weight:700;color:var(--teal);
+  letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:3px;padding-left:6px;
+}
+.who.right{color:var(--gold);text-align:right;padding-right:6px;padding-left:0}
+
+.narration{
+  font-size:17px;line-height:1.5;color:#333;
+  padding:6px 4px 2px;font-style:italic;
+  transition:all .25s;
+}
+.narration::before{
+  content:"";display:inline-block;
+  width:3px;height:18px;background:var(--gold);
+  margin-right:10px;vertical-align:middle;border-radius:2px;
+}
+.narration.now-playing{
+  background:rgba(212,160,23,.1);
+  border-radius:10px;padding:10px 14px;
+}
+
+.target{
+  background:linear-gradient(180deg,transparent 55%,var(--gold-light) 55%);
+  font-weight:700;color:var(--ink);padding:0 3px;
+}
+.slang{color:var(--teal);font-weight:700}
+
+.q{
+  margin-top:16px;font-size:13px;color:#666;
+  font-weight:500;padding-left:4px;
+}
+.q b{color:var(--teal);font-weight:700}
+
+.options{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.option{
+  background:var(--paper);
+  border:1.5px solid rgba(13,115,119,.2);
+  padding:9px 14px;border-radius:99px;
+  font-family:'Sora',sans-serif;font-size:14px;
+  font-weight:500;cursor:pointer;transition:all .15s;
+  color:var(--ink);flex:1 1 auto;text-align:center;
+}
+.option:hover:not(.locked){
+  border-color:var(--teal);background:var(--soft);
+  transform:scale(1.02);
+}
+.option.locked{cursor:default}
+.option.right{
+  border-color:var(--green);background:#e8f5ee;
+  color:var(--green);font-weight:700;
+}
+.option.wrong{
+  border-color:var(--red);background:#fdecea;
+  color:var(--red);opacity:.7;
+}
+.options.full .option{
+  flex:1 1 100%;border-radius:12px;
+  text-align:left;padding:11px 14px;
+}
+
+.fb{
+  margin-top:12px;padding:8px 14px;border-radius:10px;
+  font-size:13px;font-weight:500;display:none;text-align:center;
+}
+.fb.show{display:block;animation:rise .25s}
+.fb.right{background:#e8f5ee;color:var(--green)}
+.fb.wrong{background:#fdecea;color:var(--red)}
+
+.reveal{
+  margin-top:10px;background:var(--soft);
+  border-radius:10px;padding:10px 14px;
+  font-size:13px;color:#555;display:none;
+  border-left:3px solid var(--teal);
+}
+.reveal.show{display:block;animation:rise .25s}
+.reveal b{color:var(--teal)}
+
+/* Final */
+.final{
+  background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+  color:var(--paper);padding:36px 22px;text-align:center;
+  border-radius:20px;box-shadow:0 12px 32px rgba(13,115,119,.25);
+}
+.final-score{
+  font-family:'DM Serif Display',serif;
+  font-size:64px;color:var(--gold-light);
+  line-height:1;margin-bottom:4px;
+}
+.final h2{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.final p{opacity:.85;font-size:13px;margin-bottom:18px}
+.met{
+  background:rgba(255,255,255,.1);
+  border-radius:14px;padding:14px;margin:14px 0;
+  display:grid;gap:6px;
+}
+.met-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 4px;font-size:14px;
+}
+.met-item .name{font-weight:600}
+.met-item .count{
+  background:var(--gold);color:var(--ink);
+  padding:2px 9px;border-radius:99px;
+  font-size:11px;font-weight:700;
+}
+.btn-restart{
+  background:var(--gold);color:var(--ink);
+  border:none;padding:11px 26px;border-radius:99px;
+  font-weight:700;font-family:'Sora',sans-serif;
+  font-size:13px;cursor:pointer;margin-top:6px;
+}
+
+@media (max-width:420px){
+  .bubble,.narration{font-size:15px}
+  .option{font-size:13px;padding:8px 12px}
+  .mode-btn{font-size:10px;padding:4px 9px}
+  .flip-btn{width:28px;font-size:18px}
+  .tab{padding:6px 10px;font-size:10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">En<span>ish</span></div>
+    <div class="progress-wrap">
+      <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="streak" id="streakBox">0</div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="audio-bar">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeRead" data-mode="read">Read</button>
+      <button class="mode-btn" id="modeListen" data-mode="listen">Listen</button>
+    </div>
+    <div class="spacer"></div>
+    
+    <button class="icon-btn" id="btnReplay" title="Replay">&#9654;</button>
+    <span class="q-dot" id="qDot" title="Voice quality"></span>
+    <button class="speed-btn" id="btnSpeed" title="Speed">1.0x</button>
+    <div class="settings-wrap">
+      <button class="icon-btn" id="btnSettings" title="Voice">V</button>
+      <div class="popover" id="popover">
+        <h4>Voice <span class="legend-dot" id="legendDot"></span></h4>
+        <select id="voiceSelect"></select>
+        <div class="legend">
+          <span><i class="g"></i> Google (best)</span>
+          <span><i class="y"></i> Other (ok)</span>
+        </div>
+        <div class="hint">Audio is pre-generated with ElevenLabs neural voice - same quality on every device and browser.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage-wrap">
+    <button class="flip-btn" id="flipPrev" title="Previous">&lsaquo;</button>
+    <div class="stage" id="stage"></div>
+    <button class="flip-btn" id="flipNext" title="Next">&rsaquo;</button>
+  </div>
+
+  <div class="swipe-hint" id="swipeHint">tap arrows or swipe to flip freely</div>
+
+</div>
+
+<script>
+/* ============================================================
+   ABBREVIATION MAP for TTS expansion
+   ============================================================ */
+const ABBR_MAP = {
+  "u":"you","ur":"your","r":"are","pls":"please","plz":"please",
+  "thx":"thanks","ty":"thank you","btw":"by the way",
+  "idk":"I don't know","imo":"in my opinion","tbh":"to be honest",
+  "lol":"laugh out loud","omg":"oh my god","fyi":"for your information",
+  "asap":"as soon as possible","brb":"be right back",
+  "tmrw":"tomorrow","ttyl":"talk to you later",
+  "rn":"right now","ily":"I love you","np":"no problem",
+  "yep":"yep","nah":"nah","srsly":"seriously",
+  "wanna":"want to","gonna":"going to","gotta":"got to",
+  "kinda":"kind of","sorta":"sort of","lemme":"let me",
+  "gimme":"give me","dunno":"don't know","ya":"you",
+  "cuz":"because","cause":"because","k":"okay","ok":"okay"
+};
+function expandForTTS(s){
+  let t = s.replace(/<[^>]+>/g,'');
+  t = t.replace(/\b([A-Za-z']+)\b/g,(m)=>{
+    const key = m.toLowerCase();
+    return ABBR_MAP.hasOwnProperty(key) ? ABBR_MAP[key] : m;
+  });
+  return t;
+}
+
+/* ============================================================
+   DECK 1 - PHRASAL VERBS I (the demo)
+   keep on, watch out, figure out, give up, hang in there, piece of cake
+   ============================================================ */
+const DECK_1 = [
+  { type:"LINE", where:"track",
+    text:"Coach yells: \"<span class='target'>Keep on</span> running! <span class='slang'>2</span> laps left, <span class='slang'>c'mon</span>!\"",
+    tts:[{text:"Coach yells. Keep on running! Two laps left, come on!"}],
+    target:"keep on",
+    q:"<b>Keep on</b> means...",
+    opts:[{t:"continue",r:true},{t:"stop",r:false},{t:"hurry",r:false}],
+    fbR:"Yes - continue.",fbW:"It means continue."
+  },
+  { type:"CHAT", where:"street",
+    lines:[
+      {who:"Salem",side:"left",t:"<span class='target'>WATCH OUT!!</span> Car!!"},
+      {who:"brother",side:"right",t:"<span class='slang'>omg</span> <span class='slang'>thx</span> bro"}
+    ],
+    tts:[{who:"Salem",text:"Watch out! Car!"},{who:"brother",text:"Oh my god, thanks bro!"}],
+    target:"watch out",
+    q:"<b>Watch out</b> means...",
+    opts:[{t:"look at me",r:false},{t:"be careful",r:true},{t:"run away",r:false}],
+    fbR:"Right - it is a warning.",fbW:"It is a warning: be careful."
+  },
+  { type:"CHAT", where:"WhatsApp after exam",
+    lines:[
+      {who:"Khalid",side:"left",t:"how was it?? <span class='slang'>srsly</span>"},
+      {who:"Faisal",side:"right",t:"<span class='target'>piece of cake</span> <span class='slang'>tbh</span>. done in 20 min <span class='slang'>lol</span>"}
+    ],
+    tts:[{who:"Khalid",text:"How was it? Seriously."},{who:"Faisal",text:"Piece of cake, to be honest. Done in twenty minutes."}],
+    target:"piece of cake",
+    q:"For Faisal the test was...",
+    opts:[{t:"very hard",r:false},{t:"very easy",r:true},{t:"about food",r:false}],
+    fbR:"Yes - very easy.",fbW:"Done in 20 min? Easy."
+  },
+  { type:"LINE", where:"1am, lamp on",
+    text:"Eyes heavy. Majed mumbles: \"<span class='slang'>gonna</span> <span class='target'>keep on</span> reading till I get this.\"",
+    tts:[{text:"Eyes heavy. Majed mumbles. Going to keep on reading till I get this."}],
+    target:"keep on",
+    q:"Same words, new scene. He will...",
+    opts:[{t:"go to sleep",r:false},{t:"continue reading",r:true},{t:"close the book",r:false}],
+    fbR:"Yes - same meaning as the track scene.",fbW:"Same as the coach. Continue."
+  },
+  { type:"CHAT", where:"climbing",
+    lines:[
+      {who:"Yousef",side:"left",t:"my legs <span class='slang'>omg</span>... I <span class='target'>give up</span>"},
+      {who:"Omar",side:"right",t:"<span class='target'>hang in there</span> bro! top is RIGHT there <span class='slang'>pls</span>"}
+    ],
+    tts:[{who:"Yousef",text:"My legs, oh my god. I give up."},{who:"Omar",text:"Hang in there bro! Top is right there, please."}],
+    target:"give up",
+    q:"<b>Give up</b> means...",
+    opts:[{t:"keep walking",r:false},{t:"quit, stop trying",r:true},{t:"give a gift",r:false}],
+    fbR:"Yes - quit. And 'hang in there' = stay strong.",
+    fbW:"He is exhausted. He wants to quit.",
+    bonus:"hang in there"
+  },
+  { type:"YOU", where:"text from your cousin",
+    text:"\"big test <span class='slang'>tmrw</span>, <span class='slang'>idk</span> if I can do it, <span class='slang'>wanna</span> stop <span class='slang'>tbh</span>\"",
+    tts:[{text:"Big test tomorrow. I don't know if I can do it. Want to stop, to be honest."}],
+    target:"hang in there",
+    q:"You reply:",
+    opts:[
+      {t:"piece of cake bro lol",r:false},
+      {t:"hang in there, just 1 more day. u got this",r:true},
+      {t:"watch out!!",r:false}
+    ],
+    fbR:"Perfect reply.",fbW:"He needs courage - 'hang in there'."
+  },
+  { type:"LINE", where:"kitchen",
+    text:"Dad pokes the new coffee machine: \"can't <span class='target'>figure out</span> this thing, <span class='slang'>srsly</span>...\"",
+    tts:[{text:"Dad pokes the new coffee machine. Can't figure out this thing, seriously."}],
+    target:"figure out",
+    q:"He cannot...",
+    opts:[{t:"find the coffee",r:false},{t:"understand it",r:true},{t:"buy it",r:false}],
+    fbR:"Right - cannot understand how it works.",fbW:"He is confused - he cannot understand it."
+  },
+  { type:"CHAT", where:"football match",
+    lines:[
+      {who:"coach",side:"left",t:"Sami, <span class='target'>watch out</span> for No. 7's left foot, <span class='slang'>k</span>?"},
+      {who:"Sami",side:"right",t:"<span class='slang'>got it</span> coach"}
+    ],
+    tts:[{who:"coach",text:"Sami, watch out for number seven's left foot, okay?"},{who:"Sami",text:"Got it, coach."}],
+    target:"watch out",
+    q:"Same expression again. Coach wants Sami to...",
+    opts:[{t:"shoot with left foot",r:false},{t:"be careful of the left foot",r:true},{t:"watch the shoes",r:false}],
+    fbR:"Yes - it is always a warning.",fbW:"Still a warning. Be careful."
+  },
+  { type:"CHAT", where:"homework group chat",
+    lines:[
+      {who:"Tariq",side:"left",t:"stuck on Q5 for an HOUR. can't <span class='target'>figure</span> it <span class='target'>out</span>"},
+      {who:"Naif",side:"right",t:"<span class='slang'>lol</span> that? <span class='target'>piece of cake</span>. multiply by 2 bro"}
+    ],
+    tts:[{who:"Tariq",text:"Stuck on question five for an hour. Can't figure it out."},{who:"Naif",text:"Laugh out loud, that? Piece of cake. Multiply by two, bro."}],
+    target:"figure out",
+    q:"For Naif it is...",
+    opts:[{t:"impossible",r:false},{t:"also hard",r:false},{t:"very easy",r:true}],
+    fbR:"Yes - met both expressions again.",fbW:"He solves it in one line. Easy.",
+    bonus:"piece of cake"
+  },
+  { type:"YOU", where:"little brother + bicycle",
+    text:"He fell 3 times. He's pushing the bike away, crying: \"I can't!!\"",
+    tts:[{text:"He fell three times. He's pushing the bike away, crying. I can't!"}],
+    target:"keep on",
+    q:"You say:",
+    opts:[
+      {t:"yeah ok, give up.",r:false},
+      {t:"don't give up! keep on trying, u almost did it!",r:true},
+      {t:"watch out for the bike",r:false}
+    ],
+    fbR:"Excellent - pure encouragement.",fbW:"You want him to continue - 'keep on'."
+  }
+];
+
+/* ============================================================
+   DECK 2 - PHRASAL VERBS II
+   look up, run out (of), get along, show off, calm down, pick up
+   ============================================================ */
+const DECK_2 = [
+  { type:"LINE", where:"library",
+    text:"Faisal doesn't know the word \"obstacle\". He grabs his phone to <span class='target'>look</span> it <span class='target'>up</span>.",
+    tts:[{text:"Faisal doesn't know the word obstacle. He grabs his phone to look it up."}],
+    target:"look up",
+    q:"He will...",
+    opts:[{t:"search for it",r:true},{t:"throw it away",r:false},{t:"look at the sky",r:false}],
+    fbR:"Yes - search it.",fbW:"He wants to know the meaning. He'll search it."
+  },
+  { type:"CHAT", where:"car, 6am",
+    lines:[
+      {who:"Dad",side:"left",t:"we're <span class='target'>running out of</span> petrol <span class='slang'>omg</span>"},
+      {who:"Mom",side:"right",t:"next station is 10km away <span class='slang'>pls</span> hurry"}
+    ],
+    tts:[{who:"Dad",text:"We're running out of petrol, oh my god."},{who:"Mom",text:"Next station is ten kilometers away, please hurry."}],
+    target:"run out of",
+    q:"<b>Running out of</b> petrol means...",
+    opts:[{t:"too much petrol",r:false},{t:"almost no petrol left",r:true},{t:"petrol is on fire",r:false}],
+    fbR:"Right - almost finished.",fbW:"Dad is worried. Petrol is almost gone."
+  },
+  { type:"LINE", where:"after PE class",
+    text:"Sami throws his football higher than anyone. The boys roll their eyes - he loves to <span class='target'>show off</span>.",
+    tts:[{text:"Sami throws his football higher than anyone. The boys roll their eyes - he loves to show off."}],
+    target:"show off",
+    q:"<b>Show off</b> means...",
+    opts:[{t:"go away",r:false},{t:"act humble",r:false},{t:"display skill to impress",r:true}],
+    fbR:"Yes - he wants attention.",fbW:"He throws it higher to impress everyone."
+  },
+  { type:"CHAT", where:"new class",
+    lines:[
+      {who:"mom",side:"right",t:"how's the new class? do u <span class='target'>get along</span> with them?"},
+      {who:"Hamad",side:"left",t:"yeah, they're nice. already 3 friends <span class='slang'>:)</span>"}
+    ],
+    tts:[{who:"mom",text:"How's the new class? Do you get along with them?"},{who:"Hamad",text:"Yeah, they're nice. Already three friends."}],
+    target:"get along",
+    q:"Mom is asking if Hamad...",
+    opts:[{t:"can walk with them",r:false},{t:"has a good relationship with them",r:true},{t:"is taller than them",r:false}],
+    fbR:"Right - asking about the relationship.",fbW:"She wants to know if they're friendly."
+  },
+  { type:"LINE", where:"phone rings at school",
+    text:"\"Dad will <span class='target'>pick</span> you <span class='target'>up</span> at 2 today, not 3.\" - mom's text.",
+    tts:[{text:"Dad will pick you up at two today, not three. - Mom's text."}],
+    target:"pick up",
+    q:"<b>Pick up</b> here means...",
+    opts:[{t:"lift you off the floor",r:false},{t:"come get you in the car",r:true},{t:"choose you",r:false}],
+    fbR:"Yes - come fetch you.",fbW:"In a car context, 'pick up' = come collect you."
+  },
+  { type:"CHAT", where:"argument cooling down",
+    lines:[
+      {who:"older bro",side:"left",t:"<span class='target'>calm down</span> wallah it was a joke"},
+      {who:"you",side:"right",t:"a JOKE?? u broke my controller <span class='slang'>srsly</span>"}
+    ],
+    tts:[{who:"older bro",text:"Calm down, wallah it was a joke."},{who:"you",text:"A joke? You broke my controller, seriously."}],
+    target:"calm down",
+    q:"His brother wants him to...",
+    opts:[{t:"get angrier",r:false},{t:"relax, stop being angry",r:true},{t:"be quiet forever",r:false}],
+    fbR:"Right - relax.",fbW:"'Calm down' = relax, stop being upset."
+  },
+  { type:"CHAT", where:"snack run",
+    lines:[
+      {who:"Khalid",side:"left",t:"chips bag empty already?? we just opened it"},
+      {who:"Faisal",side:"right",t:"<span class='slang'>lol</span> yeah we <span class='target'>ran out of</span> snacks like 5 min ago"}
+    ],
+    tts:[{who:"Khalid",text:"Chips bag empty already? We just opened it."},{who:"Faisal",text:"Laugh out loud, yeah we ran out of snacks like five minutes ago."}],
+    target:"run out of",
+    q:"Same expression again. They have...",
+    opts:[{t:"more snacks",r:false},{t:"no snacks left",r:true},{t:"too many snacks",r:false}],
+    fbR:"Yes - the bag is empty.",fbW:"Empty bag = ran out of snacks."
+  },
+  { type:"LINE", where:"market",
+    text:"Mom asks: \"Can you <span class='target'>pick up</span> some bread on your way home?\"",
+    tts:[{text:"Mom asks. Can you pick up some bread on your way home?"}],
+    target:"pick up",
+    q:"Same expression, new context. Mom wants him to...",
+    opts:[{t:"hold the bread in the air",r:false},{t:"buy bread on the way",r:true},{t:"choose his favorite bread",r:false}],
+    fbR:"Yes - buy/collect it on the way.",
+    fbW:"'Pick up' here means buy it while you're out.",
+    bonus:"pick up"
+  },
+  { type:"YOU", where:"new word",
+    text:"Your friend texts: \"what does <span class='slang'>'ambitious'</span> mean?? <span class='slang'>idk</span>\"",
+    tts:[{text:"Your friend texts. What does ambitious mean? I don't know."}],
+    target:"look up",
+    q:"You reply:",
+    opts:[
+      {t:"calm down bro",r:false},
+      {t:"just look it up on ur phone",r:true},
+      {t:"run out of words huh",r:false}
+    ],
+    fbR:"Yes - search it.",fbW:"He wants the meaning. Tell him to look it up."
+  },
+  { type:"YOU", where:"little cousin crying",
+    text:"He dropped his ice cream. He's screaming. Everyone is staring.",
+    tts:[{text:"He dropped his ice cream. He's screaming. Everyone is staring."}],
+    target:"calm down",
+    q:"You kneel and say:",
+    opts:[
+      {t:"show off, kid",r:false},
+      {t:"hey hey, calm down, we'll get another one",r:true},
+      {t:"look it up",r:false}
+    ],
+    fbR:"Perfect - soothing.",fbW:"He's upset. 'Calm down' fits."
+  }
+];
+
+/* ============================================================
+   DECK 3 - COMMON EXPRESSIONS I
+   no worries, my bad, never mind, for real, fair enough, no big deal
+   ============================================================ */
+const DECK_3 = [
+  { type:"CHAT", where:"bumping into someone",
+    lines:[
+      {who:"stranger",side:"left",t:"oh sorry! my fault"},
+      {who:"you",side:"right",t:"<span class='target'>no worries</span> mate <span class='slang'>:)</span>"}
+    ],
+    tts:[{who:"stranger",text:"Oh sorry, my fault."},{who:"you",text:"No worries mate."}],
+    target:"no worries",
+    q:"<b>No worries</b> means...",
+    opts:[{t:"I am very angry",r:false},{t:"it's totally fine, don't apologize",r:true},{t:"I am worried",r:false}],
+    fbR:"Right - it's a friendly 'it's fine'.",fbW:"It is the friendly reply to 'sorry'."
+  },
+  { type:"CHAT", where:"spilled the drink",
+    lines:[
+      {who:"Hamad",side:"left",t:"DUDE that was my juice <span class='slang'>omg</span>"},
+      {who:"Sami",side:"right",t:"<span class='target'>my bad</span> bro, lemme get u another"}
+    ],
+    tts:[{who:"Hamad",text:"Dude, that was my juice, oh my god."},{who:"Sami",text:"My bad bro, let me get you another."}],
+    target:"my bad",
+    q:"<b>My bad</b> means...",
+    opts:[{t:"I am evil",r:false},{t:"I made a mistake, sorry",r:true},{t:"I am bad at this game",r:false}],
+    fbR:"Yes - a casual 'sorry'.",fbW:"Casual way to admit a mistake."
+  },
+  { type:"CHAT", where:"text conversation",
+    lines:[
+      {who:"u",side:"right",t:"hey what time was the match?"},
+      {who:"u",side:"right",t:"<span class='target'>never mind</span>, found it on the app"}
+    ],
+    tts:[{who:"narrator",text:"Hey, what time was the match?"},{who:"narrator",text:"Never mind, found it on the app."}],
+    target:"never mind",
+    q:"<b>Never mind</b> here means...",
+    opts:[{t:"forget what I just asked",r:true},{t:"remember everything",r:false},{t:"I am angry",r:false}],
+    fbR:"Right - cancel the question.",fbW:"He solved it himself, so the question doesn't matter."
+  },
+  { type:"CHAT", where:"hard to believe",
+    lines:[
+      {who:"Yousef",side:"left",t:"I met Ronaldo at the airport <span class='slang'>srsly</span>"},
+      {who:"Khalid",side:"right",t:"<span class='target'>for real</span>?? <span class='slang'>omg</span> PIC PLS"}
+    ],
+    tts:[{who:"Yousef",text:"I met Ronaldo at the airport, seriously."},{who:"Khalid",text:"For real? Oh my god, pic please."}],
+    target:"for real",
+    q:"<b>For real?</b> means...",
+    opts:[{t:"that's boring",r:false},{t:"really?? I can't believe it",r:true},{t:"go away",r:false}],
+    fbR:"Right - asking if it's true.",fbW:"It expresses surprise + asks if it's true."
+  },
+  { type:"CHAT", where:"negotiating",
+    lines:[
+      {who:"Tariq",side:"left",t:"u play 1st, then me. but I get the next 3 rounds"},
+      {who:"Naif",side:"right",t:"<span class='target'>fair enough</span>, deal"}
+    ],
+    tts:[{who:"Tariq",text:"You play first, then me. But I get the next three rounds."},{who:"Naif",text:"Fair enough, deal."}],
+    target:"fair enough",
+    q:"<b>Fair enough</b> means...",
+    opts:[{t:"that's unfair",r:false},{t:"ok, I accept that",r:true},{t:"I don't understand",r:false}],
+    fbR:"Yes - I accept it.",fbW:"It's a way to agree, especially when the other side has a point."
+  },
+  { type:"CHAT", where:"forgot the homework",
+    lines:[
+      {who:"u",side:"right",t:"<span class='slang'>omg</span> sorry I forgot the notes!"},
+      {who:"friend",side:"left",t:"<span class='target'>no big deal</span>, I'll share mine"}
+    ],
+    tts:[{who:"narrator",text:"Oh my god, sorry I forgot the notes."},{who:"friend",text:"No big deal, I'll share mine."}],
+    target:"no big deal",
+    q:"<b>No big deal</b> means...",
+    opts:[{t:"this is a huge problem",r:false},{t:"it's not important, don't worry",r:true},{t:"I don't have a deal",r:false}],
+    fbR:"Right - not important.",fbW:"He's saying don't stress about it."
+  },
+  { type:"LINE", where:"on the bus",
+    text:"You step on someone's foot. They say \"ouch!\" You say: \"<span class='target'>my bad</span>!\" - and they smile.",
+    tts:[{text:"You step on someone's foot. They say ouch. You say. My bad. And they smile."}],
+    target:"my bad",
+    q:"Same expression. You are...",
+    opts:[{t:"blaming them",r:false},{t:"admitting it was your fault",r:true},{t:"complimenting them",r:false}],
+    fbR:"Yes - taking responsibility.",fbW:"Same as the juice scene - admitting a mistake."
+  },
+  { type:"YOU", where:"dad late to pick u up",
+    text:"Dad texts: \"sorry son, I'll be 10 min late, terrible traffic <span class='slang'>:(</span>\"",
+    tts:[{text:"Dad texts. Sorry son, I'll be ten minutes late, terrible traffic."}],
+    target:"no worries",
+    q:"You reply:",
+    opts:[
+      {t:"never mind, I'll walk",r:false},
+      {t:"no worries dad, take ur time",r:true},
+      {t:"for real?? omg",r:false}
+    ],
+    fbR:"Perfect - reassuring.",fbW:"He apologized. The smooth reply is 'no worries'."
+  },
+  { type:"CHAT", where:"trying again",
+    lines:[
+      {who:"u",side:"right",t:"hey was that the new movie name?"},
+      {who:"u",side:"right",t:"wait <span class='target'>never mind</span>, dad just told me"}
+    ],
+    tts:[{who:"narrator",text:"Hey, was that the new movie name?"},{who:"narrator",text:"Wait, never mind, dad just told me."}],
+    target:"never mind",
+    q:"Same expression again. Means...",
+    opts:[{t:"keep answering",r:false},{t:"cancel my question, no need",r:true},{t:"I'm angry now",r:false}],
+    fbR:"Yes - same idea as before.",fbW:"Same as the match-time message. Cancel the question.",
+    bonus:"never mind"
+  },
+  { type:"YOU", where:"friend tells big news",
+    text:"\"bro I got 99 in the test <span class='slang'>srsly</span>\"",
+    tts:[{text:"Bro, I got ninety-nine in the test, seriously."}],
+    target:"for real",
+    q:"You react:",
+    opts:[
+      {t:"my bad",r:false},
+      {t:"for real?? mashallah!",r:true},
+      {t:"fair enough",r:false}
+    ],
+    fbR:"Yes - 'for real?' fits surprise.",fbW:"You're shocked + impressed. 'For real?' is perfect."
+  }
+];
+
+/* ============================================================
+   DECK 4 - COMMON EXPRESSIONS II
+   take it easy, what's up, hold on, sounds good, you bet, by the way
+   ============================================================ */
+const DECK_4 = [
+  { type:"CHAT", where:"text from a friend",
+    lines:[
+      {who:"friend",side:"left",t:"yo <span class='target'>what's up</span> bro"},
+      {who:"you",side:"right",t:"nm, just chilling <span class='slang'>u</span>?"}
+    ],
+    tts:[{who:"friend",text:"Yo, what's up bro."},{who:"you",text:"Not much, just chilling, you?"}],
+    target:"what's up",
+    q:"<b>What's up</b> is...",
+    opts:[{t:"asking what's in the sky",r:false},{t:"a casual 'hi, how are you'",r:true},{t:"a warning",r:false}],
+    fbR:"Right - super casual greeting.",fbW:"It's just a friendly 'hey, how are you'."
+  },
+  { type:"LINE", where:"end of a tough day",
+    text:"Dad pats your back: \"You worked hard today. <span class='target'>Take it easy</span> tonight, ok?\"",
+    tts:[{text:"Dad pats your back. You worked hard today. Take it easy tonight, okay?"}],
+    target:"take it easy",
+    q:"Dad wants you to...",
+    opts:[{t:"work harder",r:false},{t:"relax, don't push yourself",r:true},{t:"be careful with the door",r:false}],
+    fbR:"Yes - relax.",fbW:"After a hard day, dad means: relax, don't push."
+  },
+  { type:"CHAT", where:"phone call",
+    lines:[
+      {who:"Mom",side:"left",t:"can you bring me the keys??"},
+      {who:"u",side:"right",t:"<span class='target'>hold on</span> mom, looking for them"}
+    ],
+    tts:[{who:"Mom",text:"Can you bring me the keys?"},{who:"narrator",text:"Hold on mom, looking for them."}],
+    target:"hold on",
+    q:"<b>Hold on</b> means...",
+    opts:[{t:"grab something",r:false},{t:"wait a moment",r:true},{t:"goodbye",r:false}],
+    fbR:"Right - wait a sec.",fbW:"You're asking her to wait while you look."
+  },
+  { type:"CHAT", where:"making plans",
+    lines:[
+      {who:"Khalid",side:"left",t:"movie at 7, then shawarma after?"},
+      {who:"u",side:"right",t:"<span class='target'>sounds good</span>, see u then"}
+    ],
+    tts:[{who:"Khalid",text:"Movie at seven, then shawarma after?"},{who:"narrator",text:"Sounds good, see you then."}],
+    target:"sounds good",
+    q:"<b>Sounds good</b> means...",
+    opts:[{t:"I disagree",r:false},{t:"yes, I like that plan",r:true},{t:"the music is loud",r:false}],
+    fbR:"Yes - agreement.",fbW:"It's a way to accept a plan."
+  },
+  { type:"CHAT", where:"asking a favor",
+    lines:[
+      {who:"u",side:"right",t:"hey, can u help me with the assignment tonight?"},
+      {who:"Tariq",side:"left",t:"<span class='target'>you bet</span>! after maghrib?"}
+    ],
+    tts:[{who:"narrator",text:"Hey, can you help me with the assignment tonight?"},{who:"Tariq",text:"You bet! After Maghrib?"}],
+    target:"you bet",
+    q:"<b>You bet</b> means...",
+    opts:[{t:"absolutely yes",r:true},{t:"maybe no",r:false},{t:"place a bet with money",r:false}],
+    fbR:"Right - strong yes.",fbW:"Friendly strong 'yes, of course'."
+  },
+  { type:"CHAT", where:"end of a long chat",
+    lines:[
+      {who:"u",side:"right",t:"ok talk later bro"},
+      {who:"u",side:"right",t:"<span class='target'>btw</span> bring ur charger tmrw <span class='slang'>pls</span>"}
+    ],
+    tts:[{who:"narrator",text:"Okay talk later bro."},{who:"narrator",text:"By the way, bring your charger tomorrow please."}],
+    target:"by the way",
+    q:"<b>BTW</b> / <b>By the way</b> is used to...",
+    opts:[{t:"end the conversation",r:false},{t:"add a side topic before you forget",r:true},{t:"ask for directions",r:false}],
+    fbR:"Yes - adding a side topic.",fbW:"You use 'btw' to add a small extra thought."
+  },
+  { type:"LINE", where:"after a fight",
+    text:"His brother sits next to him: \"<span class='target'>take it easy</span>, I didn't mean it like that.\"",
+    tts:[{text:"His brother sits next to him. Take it easy, I didn't mean it like that."}],
+    target:"take it easy",
+    q:"Same expression. Brother wants him to...",
+    opts:[{t:"get angrier",r:false},{t:"relax, not get worked up",r:true},{t:"leave the room",r:false}],
+    fbR:"Yes - same as 'calm down', but softer.",fbW:"He wants the situation to cool off.",
+    bonus:"take it easy"
+  },
+  { type:"CHAT", where:"video call lag",
+    lines:[
+      {who:"Sami",side:"left",t:"<span class='target'>hold on</span>, u froze for a sec"},
+      {who:"u",side:"right",t:"<span class='slang'>lol</span> can u hear me now?"}
+    ],
+    tts:[{who:"Sami",text:"Hold on, you froze for a sec."},{who:"narrator",text:"Laugh out loud, can you hear me now?"}],
+    target:"hold on",
+    q:"Same again. Sami means...",
+    opts:[{t:"grab the phone tight",r:false},{t:"wait a moment",r:true},{t:"hang up",r:false}],
+    fbR:"Yes - 'wait', same idea.",fbW:"Same as the keys scene - wait a sec.",
+    bonus:"hold on"
+  },
+  { type:"YOU", where:"friend greets u in the hallway",
+    text:"He walks up smiling: \"yo bro, <span class='target'>what's up</span>?\"",
+    tts:[{text:"He walks up smiling. Yo bro, what's up?"}],
+    target:"what's up",
+    q:"You reply:",
+    opts:[
+      {t:"sounds good",r:false},
+      {t:"nm bro, u?",r:true},
+      {t:"my bad",r:false}
+    ],
+    fbR:"Yes - 'nm' = not much, the standard reply.",fbW:"'What's up' = 'how are you'. Reply: 'not much, you?'"
+  },
+  { type:"YOU", where:"a small thank-you",
+    text:"You held the door for an old man. He smiles: \"thank you young man.\"",
+    tts:[{text:"You held the door for an old man. He smiles. Thank you young man."}],
+    target:"you bet",
+    q:"Friendly reply?",
+    opts:[
+      {t:"you bet, sir",r:true},
+      {t:"my bad",r:false},
+      {t:"never mind",r:false}
+    ],
+    fbR:"Perfect - friendly 'no problem'.",fbW:"'You bet' here = 'sure, no problem!'"
+  }
+];
+
+/* ============================================================
+   DECK 5 - EXPECTED ANSWERS I
+   Replies to: thanks / how are you / sorry / good news / bad news / a compliment
+   ============================================================ */
+const DECK_5 = [
+  { type:"YOU", where:"someone thanks u",
+    text:"The waiter brings your shawarma. You say \"thanks!\" He smiles - and YOU realize he was thanking YOU first. He said: \"thank YOU sir.\"",
+    tts:[{text:"The waiter brings your shawarma. You say thanks. He smiles - and you realize he was thanking you first. He said. Thank you sir."}],
+    target:"you're welcome",
+    q:"Natural reply to \"thank you\"?",
+    opts:[
+      {t:"you're welcome",r:true},
+      {t:"my bad",r:false},
+      {t:"watch out",r:false}
+    ],
+    fbR:"Yes - the classic reply.",fbW:"After a thank you, 'you're welcome' fits."
+  },
+  { type:"YOU", where:"old friend bumps into you",
+    text:"\"Bro!! how are u?? <span class='slang'>srsly</span> long time!\"",
+    tts:[{text:"Bro, how are you? Seriously, long time!"}],
+    target:"I'm good",
+    q:"Natural reply?",
+    opts:[
+      {t:"i'm good, u?",r:true},
+      {t:"sounds good",r:false},
+      {t:"by the way",r:false}
+    ],
+    fbR:"Right - and ask them back.",fbW:"After 'how are you', say how you are AND ask them back."
+  },
+  { type:"CHAT", where:"someone apologizes",
+    lines:[
+      {who:"Hamad",side:"left",t:"<span class='slang'>omg</span> srsly sorry, I forgot to message u"},
+      {who:"you",side:"right",t:"...?"}
+    ],
+    tts:[{who:"Hamad",text:"Oh my god, seriously sorry, I forgot to message you."},{who:"narrator",text:"What do you reply?"}],
+    target:"no worries",
+    q:"You reply (light and forgiving):",
+    opts:[
+      {t:"no worries bro, it's fine",r:true},
+      {t:"for real?? wow",r:false},
+      {t:"you bet",r:false}
+    ],
+    fbR:"Yes - forgiving and easy.",fbW:"'No worries' is the smooth reply to a small apology."
+  },
+  { type:"CHAT", where:"someone shares good news",
+    lines:[
+      {who:"Tariq",side:"left",t:"I GOT INTO THE TEAM!! <span class='slang'>omg</span>"},
+      {who:"u",side:"right",t:"...?"}
+    ],
+    tts:[{who:"Tariq",text:"I got into the team! Oh my god!"},{who:"narrator",text:"What do you reply?"}],
+    target:"congrats",
+    q:"You react:",
+    opts:[
+      {t:"my bad",r:false},
+      {t:"congrats bro!! u deserve it",r:true},
+      {t:"hold on",r:false}
+    ],
+    fbR:"Right - celebrate with them.",fbW:"Good news = celebrate. 'Congrats' is the standard."
+  },
+  { type:"CHAT", where:"someone shares bad news",
+    lines:[
+      {who:"Sami",side:"left",t:"my grandpa passed away yesterday"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"Sami",text:"My grandpa passed away yesterday."},{who:"narrator",text:"What do you reply?"}],
+    target:"sorry to hear",
+    q:"You reply:",
+    opts:[
+      {t:"piece of cake",r:false},
+      {t:"i'm so sorry to hear that bro <3",r:true},
+      {t:"sounds good",r:false}
+    ],
+    fbR:"Yes - gentle and respectful.",fbW:"For bad news: 'I'm sorry to hear that'."
+  },
+  { type:"CHAT", where:"someone compliments u",
+    lines:[
+      {who:"classmate",side:"left",t:"yo, ur shoes are clean bro"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"classmate",text:"Yo, your shoes are clean bro."},{who:"narrator",text:"What do you reply?"}],
+    target:"thanks",
+    q:"Smooth reply?",
+    opts:[
+      {t:"thanks man, appreciate it",r:true},
+      {t:"never mind",r:false},
+      {t:"my bad",r:false}
+    ],
+    fbR:"Right - accept the compliment.",fbW:"To a compliment, just say thanks - don't argue with it."
+  },
+  { type:"YOU", where:"text from a relative",
+    text:"\"thank u so much for the gift habibi, mashallah\"",
+    tts:[{text:"Thank you so much for the gift habibi, mashallah."}],
+    target:"you're welcome",
+    q:"Polite reply?",
+    opts:[
+      {t:"u're welcome auntie, anytime",r:true},
+      {t:"hold on",r:false},
+      {t:"for real?",r:false}
+    ],
+    fbR:"Perfect.",fbW:"Same as the waiter - 'you're welcome' fits any 'thank you'.",
+    bonus:"you're welcome"
+  },
+  { type:"YOU", where:"friend gives u bad news",
+    text:"\"didn't get the scholarship <span class='slang'>:(</span>\"",
+    tts:[{text:"Didn't get the scholarship."}],
+    target:"sorry to hear",
+    q:"You reply:",
+    opts:[
+      {t:"watch out!",r:false},
+      {t:"ah man, sorry to hear that. u'll get the next one inshallah",r:true},
+      {t:"sounds good",r:false}
+    ],
+    fbR:"Right - empathy + encouragement.",fbW:"Bad news again - 'sorry to hear' + encouragement.",
+    bonus:"sorry to hear"
+  },
+  { type:"YOU", where:"how are you - tired version",
+    text:"Mom looks at u at breakfast: \"how are u habibi? u look tired.\"",
+    tts:[{text:"Mom looks at you at breakfast. How are you habibi? You look tired."}],
+    target:"I'm good",
+    q:"Honest casual reply?",
+    opts:[
+      {t:"i'm ok mom, just sleepy",r:true},
+      {t:"my bad",r:false},
+      {t:"congrats",r:false}
+    ],
+    fbR:"Right - honest and natural.",fbW:"You don't have to lie. 'I'm ok, just tired' works.",
+    bonus:"I'm good"
+  },
+  { type:"YOU", where:"friend got a new car",
+    text:"\"bro check it - my new car!! <span class='slang'>omg</span>\"",
+    tts:[{text:"Bro check it, my new car! Oh my god!"}],
+    target:"congrats",
+    q:"You react:",
+    opts:[
+      {t:"no big deal",r:false},
+      {t:"mashallah bro, congrats!! it's clean",r:true},
+      {t:"never mind",r:false}
+    ],
+    fbR:"Right - celebrate.",fbW:"Good news again. Celebrate + compliment.",
+    bonus:"congrats"
+  }
+];
+
+/* ============================================================
+   DECK 6 - EXPECTED ANSWERS II
+   Replies to: a question you don't know / an invitation / an apology /
+   disagreement / "long time no see" / a favor
+   ============================================================ */
+const DECK_6 = [
+  { type:"CHAT", where:"trivia in the car",
+    lines:[
+      {who:"dad",side:"left",t:"what's the capital of Australia?"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"dad",text:"What's the capital of Australia?"},{who:"narrator",text:"What do you say if you don't know?"}],
+    target:"I have no idea",
+    q:"Honest reply when u don't know:",
+    opts:[
+      {t:"i have no idea tbh",r:true},
+      {t:"piece of cake",r:false},
+      {t:"my bad",r:false}
+    ],
+    fbR:"Right - just admit it.",fbW:"It's okay to say 'I have no idea' / 'idk'."
+  },
+  { type:"CHAT", where:"invitation",
+    lines:[
+      {who:"Khalid",side:"left",t:"bbq at my house friday?"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"Khalid",text:"Barbeque at my house Friday?"},{who:"narrator",text:"You want to go - how do you accept?"}],
+    target:"sounds great",
+    q:"Yes-style reply:",
+    opts:[
+      {t:"sounds great, what time?",r:true},
+      {t:"never mind",r:false},
+      {t:"watch out",r:false}
+    ],
+    fbR:"Right - accept + ask for details.",fbW:"To an invitation: accept + ask the practical detail."
+  },
+  { type:"CHAT", where:"declining nicely",
+    lines:[
+      {who:"Faisal",side:"left",t:"come gaming tonight?"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"Faisal",text:"Come gaming tonight?"},{who:"narrator",text:"You can't go - how do you decline nicely?"}],
+    target:"can't tonight",
+    q:"Polite no:",
+    opts:[
+      {t:"i wish i could but i can't tonight, maybe tmrw?",r:true},
+      {t:"watch out!",r:false},
+      {t:"my bad",r:false}
+    ],
+    fbR:"Right - decline + offer alternative.",fbW:"Polite decline: 'I wish I could but...' + alternative."
+  },
+  { type:"CHAT", where:"someone says sorry, big mistake",
+    lines:[
+      {who:"Sami",side:"left",t:"<span class='slang'>omg</span> bro i lost ur charger <span class='slang'>srsly</span> sorry"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"Sami",text:"Oh my god bro, I lost your charger, seriously sorry."},{who:"narrator",text:"It's a real loss. What's an honest but kind reply?"}],
+    target:"it's ok",
+    q:"You reply:",
+    opts:[
+      {t:"sounds good",r:false},
+      {t:"it's ok, just be careful next time",r:true},
+      {t:"my bad",r:false}
+    ],
+    fbR:"Right - forgive + soft warning.",fbW:"You can forgive, but it's okay to add a gentle note."
+  },
+  { type:"CHAT", where:"u disagree with a friend",
+    lines:[
+      {who:"Hamad",side:"left",t:"messi is better than ronaldo, end of story"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"Hamad",text:"Messi is better than Ronaldo, end of story."},{who:"narrator",text:"You disagree - how do you say it politely?"}],
+    target:"I see your point",
+    q:"Polite pushback:",
+    opts:[
+      {t:"shut up",r:false},
+      {t:"i see ur point but i still think ronaldo is",r:true},
+      {t:"never mind",r:false}
+    ],
+    fbR:"Right - acknowledge then disagree.",fbW:"Polite disagreement starts with 'I see your point but...'"
+  },
+  { type:"YOU", where:"haven't seen each other in months",
+    text:"Old friend: \"<span class='slang'>OMG</span> bro!! long time no see!!\"",
+    tts:[{text:"Old friend. Oh my god bro! Long time no see!"}],
+    target:"long time",
+    q:"Warm reply:",
+    opts:[
+      {t:"piece of cake",r:false},
+      {t:"yooo too long bro, how've u been??",r:true},
+      {t:"hold on",r:false}
+    ],
+    fbR:"Right - match the warmth.",fbW:"Match the energy + ask about them."
+  },
+  { type:"CHAT", where:"friend asks a favor",
+    lines:[
+      {who:"Tariq",side:"left",t:"bro can u pick me up at 8 tmrw?? car broke"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"Tariq",text:"Bro can you pick me up at eight tomorrow? Car broke."},{who:"narrator",text:"You can help - how do you say yes warmly?"}],
+    target:"you bet",
+    q:"Warm yes:",
+    opts:[
+      {t:"my bad",r:false},
+      {t:"you bet bro, see u then",r:true},
+      {t:"watch out",r:false}
+    ],
+    fbR:"Right - warm 'yes of course'.",fbW:"'You bet' from deck 4 - a strong friendly yes.",
+    bonus:"you bet"
+  },
+  { type:"CHAT", where:"don't know AGAIN",
+    lines:[
+      {who:"teacher",side:"left",t:"who wrote Hamlet?"},
+      {who:"u",side:"right",t:"..."}
+    ],
+    tts:[{who:"teacher",text:"Who wrote Hamlet?"},{who:"narrator",text:"You really don't know - the polite school version?"}],
+    target:"I'm not sure",
+    q:"Polite school version of 'idk':",
+    opts:[
+      {t:"i'm not sure, sir",r:true},
+      {t:"piece of cake",r:false},
+      {t:"never mind",r:false}
+    ],
+    fbR:"Right - polite for class.",fbW:"In class, 'I'm not sure' is softer than 'idk'.",
+    bonus:"I'm not sure"
+  },
+  { type:"YOU", where:"big invitation - wedding",
+    text:"Cousin: \"u're invited to my wedding next month inshallah!\"",
+    tts:[{text:"Cousin. You're invited to my wedding next month inshallah!"}],
+    target:"wouldn't miss it",
+    q:"Excited yes:",
+    opts:[
+      {t:"i wouldn't miss it bro, mabrook!!",r:true},
+      {t:"my bad",r:false},
+      {t:"hold on",r:false}
+    ],
+    fbR:"Right - excited + congrats.",fbW:"For a big invite: enthusiasm + congratulations."
+  },
+  { type:"YOU", where:"someone disagrees with u",
+    text:"\"bro the new iPhone is way better than samsung srsly\"",
+    tts:[{text:"Bro the new iPhone is way better than Samsung seriously."}],
+    target:"fair enough",
+    q:"You disagree but want to keep peace:",
+    opts:[
+      {t:"fair enough, i still prefer samsung tho",r:true},
+      {t:"watch out!",r:false},
+      {t:"never mind",r:false}
+    ],
+    fbR:"Right - acknowledge then state ur view.",fbW:"'Fair enough' shows respect even if u still disagree.",
+    bonus:"fair enough"
+  }
+];
+
+/* ============================================================
+   DECK 7 - HOW DO YOU ASK?
+   The format flips: a situation appears, you pick the right QUESTION
+   ============================================================ */
+const DECK_7 = [
+  { type:"YOU", where:"asking for help",
+    text:"U're stuck on math homework. U want to ask ur friend.",
+    tts:[{text:"You're stuck on math homework. You want to ask your friend for help."}],
+    target:"could you help",
+    q:"Polite way to ask:",
+    opts:[
+      {t:"help me now",r:false},
+      {t:"hey, could u help me with this?",r:true},
+      {t:"u must help me",r:false}
+    ],
+    fbR:"Right - 'could you' is polite.",fbW:"Start with 'could you' or 'can you' - sounds friendly."
+  },
+  { type:"YOU", where:"asking the time",
+    text:"Ur phone is dead. U see a stranger at the bus stop.",
+    tts:[{text:"Your phone is dead. You see a stranger at the bus stop. You want to ask the time."}],
+    target:"what time",
+    q:"You ask:",
+    opts:[
+      {t:"give me time",r:false},
+      {t:"excuse me, do u have the time?",r:true},
+      {t:"clock?",r:false}
+    ],
+    fbR:"Right - smooth + polite.",fbW:"'Excuse me, do you have the time?' is the classic."
+  },
+  { type:"YOU", where:"asking to repeat",
+    text:"Teacher said something quickly. U missed it.",
+    tts:[{text:"Teacher said something quickly. You missed it."}],
+    target:"could you repeat",
+    q:"You raise ur hand:",
+    opts:[
+      {t:"i didn't hear",r:false},
+      {t:"sorry sir, could u repeat that please?",r:true},
+      {t:"again!!",r:false}
+    ],
+    fbR:"Right - sorry + please.",fbW:"'Could you repeat that please' is the school-friendly way."
+  },
+  { type:"YOU", where:"asking for permission",
+    text:"U need to leave the classroom for a minute.",
+    tts:[{text:"You need to leave the classroom for a minute."}],
+    target:"may I",
+    q:"Most polite:",
+    opts:[
+      {t:"i'm going outside",r:false},
+      {t:"sir, may i go to the restroom please?",r:true},
+      {t:"i leave now ok",r:false}
+    ],
+    fbR:"Right - 'may I' is the politest.",fbW:"'May I...?' is the most polite way to ask permission."
+  },
+  { type:"YOU", where:"asking the price",
+    text:"U see a watch in a shop. No price tag.",
+    tts:[{text:"You see a watch in a shop. No price tag."}],
+    target:"how much",
+    q:"U ask:",
+    opts:[
+      {t:"how much money u want?",r:false},
+      {t:"excuse me, how much is this?",r:true},
+      {t:"price?? srsly?",r:false}
+    ],
+    fbR:"Right - clean and polite.",fbW:"'How much is this?' - simple and respectful."
+  },
+  { type:"YOU", where:"asking directions",
+    text:"U're lost. U see a friendly-looking person.",
+    tts:[{text:"You're lost. You see a friendly-looking person. You need to find the mall."}],
+    target:"how do I get to",
+    q:"U ask:",
+    opts:[
+      {t:"where mall?",r:false},
+      {t:"excuse me, how do i get to the mall?",r:true},
+      {t:"mall now??",r:false}
+    ],
+    fbR:"Right - polite + clear.",fbW:"'How do I get to...?' is the natural way."
+  },
+  { type:"YOU", where:"asking a favor",
+    text:"U need ur friend to lend u his charger for one night.",
+    tts:[{text:"You need your friend to lend you his charger for one night."}],
+    target:"would you mind",
+    q:"Polite ask:",
+    opts:[
+      {t:"give me ur charger",r:false},
+      {t:"bro would u mind if i borrowed ur charger tonight?",r:true},
+      {t:"charger now",r:false}
+    ],
+    fbR:"Right - 'would you mind' is super polite.",fbW:"'Would you mind if I...?' = very polite favor."
+  },
+  { type:"YOU", where:"ordering food",
+    text:"U're at a restaurant. U've decided what u want.",
+    tts:[{text:"You're at a restaurant. You've decided what you want."}],
+    target:"I'll have",
+    q:"Natural way to order:",
+    opts:[
+      {t:"give me chicken",r:false},
+      {t:"hi, i'll have the chicken sandwich please",r:true},
+      {t:"chicken!!",r:false}
+    ],
+    fbR:"Right - 'I'll have...' is the standard.",fbW:"At restaurants, native speakers say 'I'll have...' / 'I'd like...'"
+  },
+  { type:"YOU", where:"asking a phone number",
+    text:"U met a cool new classmate. U want to keep in touch.",
+    tts:[{text:"You met a cool new classmate. You want to keep in touch."}],
+    target:"can I get",
+    q:"Smooth way:",
+    opts:[
+      {t:"number give",r:false},
+      {t:"hey, can i get ur number? we can play later",r:true},
+      {t:"u must give number",r:false}
+    ],
+    fbR:"Right - 'can I get' is casual + smooth.",fbW:"'Can I get your number?' is the modern way to ask."
+  },
+  { type:"YOU", where:"asking what something means",
+    text:"In a chat, a friend wrote a word u don't know: \"that's so <span class='slang'>cringe</span>\".",
+    tts:[{text:"In a chat, a friend wrote a word you don't know. That's so cringe."}],
+    target:"what does",
+    q:"How do u ask?",
+    opts:[
+      {t:"explain word",r:false},
+      {t:"what does 'cringe' mean btw?",r:true},
+      {t:"cringe??",r:false}
+    ],
+    fbR:"Right - 'what does X mean' is the formula.",fbW:"'What does ___ mean?' - the question formula for any new word.",
+    bonus:"what does"
+  }
+];
+
+/* ============================================================
+   ALL DECKS together
+   ============================================================ */
+const DECKS = [
+  { id:0, name:"Phrasal Verbs I",     short:"PV 1",  data:DECK_1 },
+  { id:1, name:"Phrasal Verbs II",    short:"PV 2",  data:DECK_2 },
+  { id:2, name:"Expressions I",       short:"Exp 1", data:DECK_3 },
+  { id:3, name:"Expressions II",      short:"Exp 2", data:DECK_4 },
+  { id:4, name:"Expected Replies I",  short:"Rep 1", data:DECK_5 },
+  { id:5, name:"Expected Replies II", short:"Rep 2", data:DECK_6 },
+  { id:6, name:"How Do You Ask?",     short:"Ask",   data:DECK_7 }
+];
+
+/* per-deck state: idx, streak, score, visited set, answered map, encounters */
+const DECK_STATE = DECKS.map(()=>({
+  idx:0, streak:0, score:0,
+  visited:new Set(),
+  answered:new Map(),
+  encounters:{}
+}));
+
+/* ============================================================
+   TTS ENGINE  -  MP3 edition
+   Plays pre-generated ElevenLabs audio files from the audio/ folder.
+   File naming: audio/deck{D}_card{CC}_item{I}.mp3
+   Falls back silently if a file is missing.
+   ============================================================ */
+
+/* Quality dot: always gold = ElevenLabs neural voice */
+function updateQualityDot(){
+  const dot = document.getElementById('qDot');
+  if(dot){
+    dot.classList.remove('fallback');
+    dot.classList.add('google');   /* reuse green dot style */
+    dot.title = 'ElevenLabs neural voice';
+  }
+  const legend = document.getElementById('legendDot');
+  if(legend) legend.style.background = 'var(--green-bright)';
+}
+
+/* Hide the voice-selector popover contents - not needed for MP3 mode */
+function populateVoiceSelector(sel){
+  sel.innerHTML = '<option>ElevenLabs neural voice</option>';
+}
+
+/* Build the MP3 path for a given deck / card / item index */
+function mp3Path(deck, card, item){
+  return 'audio/deck' + deck + '_card' + String(card).padStart(2,'0') + '_item' + item + '.mp3';
+}
+
+/* Core TTS object */
+const TTS = {
+  speed: 1.0,
+  _audio: null,   /* currently playing Audio element */
+
+  /* items  = array of {text, who} as before (text is ignored - audio file is used)
+     The deck/card index is resolved from the current lesson state at call time.
+     opts.onItemStart(i), opts.onItemEnd(i), opts.onAllDone() are honoured. */
+  speak(items, opts, deckNum, cardNum){
+    this.stop();
+    opts = opts || {};
+    const onItemStart = opts.onItemStart || function(){};
+    const onItemEnd   = opts.onItemEnd   || function(){};
+    const onAllDone   = opts.onAllDone   || function(){};
+
+    /* deckNum / cardNum are 1-based integers matching the manifest naming */
+    const dk = (deckNum !== undefined) ? deckNum : (currentDeck + 1);
+    const cd = (cardNum !== undefined) ? cardNum : (getState().idx + 1);
+
+    updateQualityDot();
+
+    let i = 0;
+    const playNext = () => {
+      if(i >= items.length){ onAllDone(); return; }
+      const path = mp3Path(dk, cd, i + 1);
+      const audio = new Audio(path);
+      audio.playbackRate = TTS.speed;
+      this._audio = audio;
+      onItemStart(i);
+      audio.onended = () => {
+        onItemEnd(i);
+        i++;
+        setTimeout(playNext, 150);
+      };
+      audio.onerror = () => {
+        /* file missing - skip silently */
+        onItemEnd(i);
+        i++;
+        setTimeout(playNext, 150);
+      };
+      audio.play().catch(() => {
+        onItemEnd(i);
+        i++;
+        setTimeout(playNext, 150);
+      });
+    };
+    playNext();
+  },
+
+  stop(){
+    if(this._audio){
+      this._audio.pause();
+      this._audio.src = '';
+      this._audio = null;
+    }
+  }
+};
+
+/* ============================================================
+   UI WIRING + STATE
+   ============================================================ */
+let currentDeck = 0;
+const stage = document.getElementById('stage');
+
+function getDeck(){ return DECKS[currentDeck].data; }
+function getState(){ return DECK_STATE[currentDeck]; }
+
+/* Tabs */
+function renderTabs(){
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  DECKS.forEach((d,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (i===currentDeck ? ' active' : '');
+    if(DECK_STATE[i].answered.size > 0) btn.classList.add('has-progress');
+    btn.innerHTML = `<span class="tab-num">${i+1}</span>${d.short}<span class="tab-done"></span>`;
+    btn.addEventListener('click',()=>switchDeck(i));
+    tabsEl.appendChild(btn);
+  });
+}
+function switchDeck(i){
+  TTS.stop();
+  currentDeck = i;
+  renderTabs();
+  render();
+}
+
+/* Audio bar wiring */
+const btnReplay = document.getElementById('btnReplay');
+const btnSpeed = document.getElementById('btnSpeed');
+const btnSettings = document.getElementById('btnSettings');
+const popover = document.getElementById('popover');
+const voiceSelect = document.getElementById('voiceSelect');
+const flipPrev = document.getElementById('flipPrev');
+const flipNext = document.getElementById('flipNext');
+
+btnReplay.addEventListener('click',()=>{ playCurrentMoment(); });
+
+const speeds = [0.8,1.0,1.2];
+let speedIdx = 1;
+btnSpeed.addEventListener('click',()=>{
+  speedIdx = (speedIdx+1) % speeds.length;
+  TTS.speed = speeds[speedIdx];
+  btnSpeed.textContent = TTS.speed.toFixed(1)+'x';
+  if(TTS._audio) TTS._audio.playbackRate = TTS.speed;
+});
+
+btnSettings.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  popover.classList.toggle('open');
+  if(popover.classList.contains('open')){
+    populateVoiceSelector(voiceSelect);
+    updateQualityDot();
+  }
+});
+document.addEventListener('click',(e)=>{
+  if(!popover.contains(e.target) && e.target !== btnSettings){
+    popover.classList.remove('open');
+  }
+});
+voiceSelect.addEventListener('change',()=>{ /* no-op in MP3 mode */ });
+
+let mode = 'read';
+document.querySelectorAll('.mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    mode = b.dataset.mode;
+    render();
+  });
+});
+
+/* Navigation */
+function goPrev(){
+  const st = getState();
+  if(st.idx > 0){ st.idx--; render(); }
+}
+function goNext(){
+  const st = getState();
+  if(st.idx < getDeck().length){ st.idx++; render(); }
+}
+flipPrev.addEventListener('click', goPrev);
+flipNext.addEventListener('click', goNext);
+
+document.addEventListener('keydown',(e)=>{
+  if(e.target.tagName === 'SELECT') return;
+  if(e.key === 'ArrowLeft') goPrev();
+  else if(e.key === 'ArrowRight') goNext();
+});
+
+let touchStartX=0, touchStartY=0;
+stage.addEventListener('touchstart',(e)=>{
+  if(e.touches.length === 1){
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }
+},{passive:true});
+stage.addEventListener('touchend',(e)=>{
+  if(e.changedTouches.length !== 1) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)*1.5){
+    if(dx > 0) goPrev(); else goNext();
+  }
+},{passive:true});
+
+/* playback helpers */
+function setSpeaking(on){
+  btnReplay.classList.toggle('speaking', on);
+  const bigBtn = document.querySelector('.big-replay');
+  if(bigBtn) bigBtn.classList.toggle('speaking', on);
+}
+function highlightItem(i,on){
+  const bubbles = stage.querySelectorAll('.bubble');
+  const narration = stage.querySelector('.narration');
+  if(bubbles.length > 0){
+    bubbles.forEach(b => b.classList.remove('now-playing'));
+    if(on && bubbles[i]) bubbles[i].classList.add('now-playing');
+  } else if(narration){
+    narration.classList.toggle('now-playing', on);
+  }
+}
+function playCurrentMoment(){
+  const st = getState();
+  const deck = getDeck();
+  const m = deck[st.idx];
+  if(!m || !m.tts) return;
+  setSpeaking(true);
+  TTS.speak(m.tts, {
+    onItemStart:(i)=>highlightItem(i,true),
+    onItemEnd:(i)=>highlightItem(i,false),
+    onAllDone:()=>setSpeaking(false)
+  }, currentDeck + 1, st.idx + 1);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  TTS.stop();
+  setSpeaking(false);
+
+  const deck = getDeck();
+  const st = getState();
+  const total = deck.length;
+
+  document.getElementById('progressFill').style.width = (st.answered.size/total*100)+'%';
+  document.getElementById('streakBox').textContent = st.streak;
+
+  flipPrev.disabled = st.idx <= 0;
+  flipNext.disabled = st.idx >= total;
+
+  renderTabs();
+
+  if(st.idx >= total){ renderFinal(); return; }
+
+  const m = deck[st.idx];
+
+  if(!st.visited.has(st.idx)){
+    if(m.target){
+      st.encounters[m.target] = (st.encounters[m.target]||0) + 1;
+    }
+    if(m.bonus){
+      st.encounters[m.bonus] = (st.encounters[m.bonus]||0) + 1;
+    }
+    st.visited.add(st.idx);
+  }
+
+  const enc = st.encounters[m.target] || 1;
+  const againBadge = enc >= 2 ? `<span class="again">again #${enc}</span>` : '';
+
+  let body = '';
+  if(mode === 'listen'){
+    body = `
+      <div class="listen-pad">
+        <div class="ear">listen</div>
+        <p>Close your eyes. Tap to play again.</p>
+        <button class="big-replay" id="bigReplay">&#9654; Play</button>
+      </div>
+    `;
+  } else {
+    if(m.type === 'LINE' || m.type === 'YOU'){
+      body = `<div class="narration">${m.text}</div>`;
+    } else if(m.type === 'CHAT'){
+      body = m.lines.map(l=>{
+        const sc = l.side==='right' ? 'right' : '';
+        return `<div class="who ${sc}">${l.who}</div><div class="bubble ${sc}">${l.t}</div>`;
+      }).join('');
+    }
+  }
+
+  const fullClass = m.type === 'YOU' ? 'full' : '';
+  const optsHTML = m.opts.map((o,oi)=>
+    `<button class="option" data-r="${o.r?1:0}" data-i="${oi}">${o.t}</button>`
+  ).join('');
+
+  let revealHTML = '';
+  if(mode === 'listen'){
+    let revealText = '';
+    if(m.type === 'LINE' || m.type === 'YOU') revealText = m.text;
+    else if(m.type === 'CHAT') revealText = m.lines.map(l=>`<b>${l.who}:</b> ${l.t}`).join('<br>');
+    revealHTML = `<div class="reveal" id="reveal">${revealText}</div>`;
+  }
+
+  stage.innerHTML = `
+    <div class="moment">
+      <div class="tag">
+        <span class="where">${m.where}</span>
+        <div class="meta">
+          <span class="scene-num">${st.idx+1} / ${total}</span>
+          ${againBadge}
+        </div>
+      </div>
+      <div class="body">
+        ${body}
+        <div class="q">${m.q}</div>
+        <div class="options ${fullClass}">${optsHTML}</div>
+        <div class="fb" id="fb"></div>
+        ${revealHTML}
+      </div>
+    </div>
+  `;
+
+  stage.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',()=>handleAnswer(btn,m));
+  });
+
+  if(st.answered.has(st.idx)){
+    const ans = st.answered.get(st.idx);
+    const all = stage.querySelectorAll('.option');
+    all.forEach(o=>o.classList.add('locked'));
+    if(ans.chosen != null){
+      const chosenBtn = stage.querySelector(`.option[data-i="${ans.chosen}"]`);
+      if(chosenBtn) chosenBtn.classList.add(ans.right ? 'right' : 'wrong');
+      if(!ans.right){
+        all.forEach(o=>{ if(o.dataset.r==='1') o.classList.add('right'); });
+      }
+    }
+    const fb = document.getElementById('fb');
+    fb.textContent = ans.right ? m.fbR : m.fbW;
+    fb.classList.add('show', ans.right ? 'right' : 'wrong');
+    const reveal = document.getElementById('reveal');
+    if(reveal) reveal.classList.add('show');
+  }
+
+  const bigReplay = document.getElementById('bigReplay');
+  if(bigReplay) bigReplay.addEventListener('click',()=>playCurrentMoment());
+
+
+}
+
+function handleAnswer(btn,m){
+  const st = getState();
+  if(st.answered.has(st.idx)) return;
+
+  const all = stage.querySelectorAll('.option');
+  all.forEach(o=>o.classList.add('locked'));
+  const right = btn.dataset.r === '1';
+  const fb = document.getElementById('fb');
+  if(right){
+    btn.classList.add('right');
+    st.streak++; st.score++;
+    fb.textContent = m.fbR;
+    fb.classList.add('show','right');
+  } else {
+    btn.classList.add('wrong');
+    st.streak = 0;
+    all.forEach(o=>{ if(o.dataset.r==='1') o.classList.add('right'); });
+    fb.textContent = m.fbW;
+    fb.classList.add('show','wrong');
+  }
+  st.answered.set(st.idx, { right:right, chosen:parseInt(btn.dataset.i) });
+
+  document.getElementById('streakBox').textContent = st.streak;
+  document.getElementById('progressFill').style.width = (st.answered.size/getDeck().length*100)+'%';
+
+  const reveal = document.getElementById('reveal');
+  if(reveal) reveal.classList.add('show');
+
+  renderTabs();
+}
+
+function renderFinal(){
+  TTS.stop();
+  setSpeaking(false);
+  const st = getState();
+  const deck = getDeck();
+  const total = deck.length;
+  document.getElementById('progressFill').style.width = '100%';
+  flipPrev.disabled = false;
+  flipNext.disabled = true;
+
+  let list = '';
+  Object.entries(st.encounters).forEach(([k,v])=>{
+    if(v>0) list += `<div class="met-item"><span class="name">${k}</span><span class="count">${v}x</span></div>`;
+  });
+
+  const nextDeckIdx = (currentDeck+1) % DECKS.length;
+  stage.innerHTML = `
+    <div class="final">
+      <div class="final-score">${st.score}/${total}</div>
+      <h2>Done.</h2>
+      <p>You met these in real moments. They stick now.</p>
+      <div class="met">${list}</div>
+      <button class="btn-restart" id="btnRestartDeck">Replay this deck</button>
+      <br><br>
+      <button class="btn-restart" id="btnNextDeck" style="background:rgba(255,255,255,.2);color:var(--paper)">
+        Next: ${DECKS[nextDeckIdx].name} &rarr;
+      </button>
+    </div>
+  `;
+  document.getElementById('btnRestartDeck').addEventListener('click',()=>{
+    DECK_STATE[currentDeck] = { idx:0, streak:0, score:0, visited:new Set(), answered:new Map(), encounters:{} };
+    render();
+  });
+  document.getElementById('btnNextDeck').addEventListener('click',()=>{
+    switchDeck(nextDeckIdx);
+  });
+}
+
+/* boot */
+renderTabs();
+render();
+</script>
+</body>
+</html>
