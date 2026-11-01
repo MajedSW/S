@@ -35,17 +35,18 @@ VERTEX_MODELS = ['gemini-2.5-flash-tts', 'gemini-2.5-flash-preview-tts', 'gemini
 OUT = Path(__file__).resolve().parent.parent / 'voice-lab' / 'gemini'
 
 # The same six lines as the page, so the device voice and Gemini read identical text.
-# The direction tells Gemini how each moment should feel. It is kept to the short "Say ...:" form
-# from Google's TTS guide: a longer English instruction gets read aloud before the Arabic line.
+# The tone for each moment goes in an inline audio tag such as [excited], which the model acts on
+# without saying it. A direction written as English text gets read aloud before the Arabic line,
+# both a long instruction and the short "Say happily:" form, and TTS models refuse a system instruction.
 LINES = [
-    ('مرحبًا يا بطل! استعدّ للانطلاق.', 'بداية اللعبة', 'Say excitedly and warmly'),
-    ('تحذير! التنّين المدرّع قادم.', 'قبل الزعيم', 'Say dramatically, as a thrilling warning'),
-    ('أحسنت! انضمّت إليك مركبة جديدة.', 'بوابة السفينة', 'Say with delight and pride'),
-    ('قوّة إضافية! أسلحتك أصبحت أقوى.', 'بوابة القوة', 'Say energetically, like a power-up'),
-    ('انتهت المرحلة الأولى. رائع!', 'نهاية المرحلة', 'Say happily, celebrating'),
-    ('خسرت هذه المرّة. حاول مرّة أخرى!', 'شاشة الخسارة', 'Say kindly and encouragingly'),
+    ('مرحبًا يا بطل! استعدّ للانطلاق.', 'بداية اللعبة', 'excited'),
+    ('تحذير! التنّين المدرّع قادم.', 'قبل الزعيم', 'dramatic'),
+    ('أحسنت! انضمّت إليك مركبة جديدة.', 'بوابة السفينة', 'proud'),
+    ('قوّة إضافية! أسلحتك أصبحت أقوى.', 'بوابة القوة', 'energetic'),
+    ('انتهت المرحلة الأولى. رائع!', 'نهاية المرحلة', 'happy'),
+    ('خسرت هذه المرّة. حاول مرّة أخرى!', 'شاشة الخسارة', 'encouraging'),
 ]
-LONG = 8  # seconds; each line takes about 3-5, so a longer clip probably has the direction read aloud in it
+LONG = 6  # seconds; a line takes about 3-5, so a longer clip may have the tag or other words read aloud
 
 # Gemini's prebuilt voices that suit a lively children's game. Arabic labels are shown on the page.
 VOICES = {
@@ -55,7 +56,7 @@ VOICES = {
     'Zephyr': {'ar': 'زِفير', 'trait': 'صوت نسائي مُشرق'},
 }
 
-PROMPT = '{style}: {text}'
+PROMPT = '[{style}] {text}'
 
 
 class QuotaExhausted(Exception):
@@ -212,8 +213,8 @@ def main():
             secs = duration(dest)
             print(f'  {dest.name}  {secs:.2f}s  ({models[0]})', flush=True)
             if secs > LONG:
-                print(f'  warning: {dest.name} is over {LONG}s; listen for the direction read aloud, '
-                      'delete the file and run again', flush=True)
+                print(f'  warning: {dest.name} is over {LONG}s; listen for words other than the line, '
+                      'and if there are any, delete the file and run again', flush=True)
         if stopped:
             break
 
