@@ -1,6 +1,6 @@
 # مختبر الصوت العربي
 
-الصفحة `voice-lab.html` هي نسخة صفحة Artifact «مختبر الصوت العربي»، وفيها قسم «Gemini أم صوت جهازك؟» الذي يشغّل ملفات `gemini/*.mp3`.
+الصفحة `voice-lab.html` هي نسخة صفحة Artifact «مختبر الصوت العربي»، وفيها قسم «صوت مسجّل أم صوت جهازك؟» الذي يشغّل ملفات `gemini/*.mp3` و`azure/*.mp3`. أصوات Azure تظهر في الصفحة تلقائيًا من `azure/manifest.json` بعد توليدها.
 
 ## توليد أصوات Gemini
 
@@ -25,8 +25,10 @@ python3 tools/gemini-tts.py --voices Puck,Leda --force   # أصوات أخرى �
 
 يحتاج مورد Azure Speech بفئة Free F0، ثم في إعدادات البيئة السحابية:
 
-- متغيرا البيئة `AZURE_SPEECH_KEY` (قيمة KEY 1 من Keys and Endpoint) و`AZURE_SPEECH_REGION` (قيمة Location/Region، مثل `eastus`).
-- السماح بالعنوان `<المنطقة>.tts.speech.microsoft.com` في Allowed domains ضمن Network access.
+- متغيرا البيئة `AZURE_SPEECH_KEY` (قيمة KEY 1 من Keys and Endpoint) و`AZURE_SPEECH_REGION` (قيمة Location/Region، مثل `qatarcentral` أو `eastus`).
+- السماح بالعنوان `<المنطقة>.tts.speech.microsoft.com` في Allowed domains ضمن Network access، مثل `qatarcentral.tts.speech.microsoft.com`.
+
+المفتاح يعمل فقط مع منطقة المورد نفسه، فإذا تغيّرت المنطقة تغيّر العنوان المسموح به أيضًا.
 
 ```
 python3 tools/azure-tts.py --check   # يعرض الأصوات العربية: يثبت أن المفتاح والمنطقة والشبكة تعمل
@@ -37,4 +39,4 @@ python3 tools/azure-tts.py           # 6 جمل × صوتين سعوديين (ح
 
 ## النشر
 
-انشر `voice-lab/voice-lab.html` على رابط الصفحة نفسه، ومعه كل ملفات `voice-lab/gemini/` بمسار `gemini/<اسم الملف>`.
+انشر `voice-lab/voice-lab.html` على رابط الصفحة نفسه، ومعه كل ملفات `voice-lab/gemini/` بمسار `gemini/<اسم الملف>`، وكل ملفات `voice-lab/azure/` بمسار `azure/<اسم الملف>`.

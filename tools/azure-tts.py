@@ -101,10 +101,14 @@ def main():
     args = ap.parse_args()
 
     key, region = os.environ.get('AZURE_SPEECH_KEY'), os.environ.get('AZURE_SPEECH_REGION')
-    if not key or not region:
-        sys.exit('Set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in the cloud environment\'s environment variables, '
-                 'allow <region>.tts.speech.microsoft.com in its network access, and start a new session.')
-    region = region.strip().lower().replace(' ', '')
+    region = (region or '').strip().lower().replace(' ', '')  # "Qatar Central" -> qatarcentral
+    missing = [n for n, v in (('AZURE_SPEECH_KEY', key), ('AZURE_SPEECH_REGION', region)) if not v]
+    if missing:
+        host = f'{region or "<region>"}.tts.speech.microsoft.com'
+        sys.exit(f'{" and ".join(missing)} {"is" if len(missing) == 1 else "are"} not set. Add '
+                 + ', '.join(f'{n}=<value>' for n in missing)
+                 + ' to the cloud environment\'s environment variables (KEY 1 and Location/Region from the Speech '
+                 f'resource\'s Keys and Endpoint), allow {host} in its network access, and start a new session.')
 
     if args.check:
         voices = call(f'{base(region)}/cognitiveservices/voices/list', key, accept_json=True)
