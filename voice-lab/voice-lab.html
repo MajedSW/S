@@ -134,6 +134,7 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
     <h2 id="cmpTitle">Gemini أم صوت جهازك؟</h2>
     <p class="sub">الجمل نفسها مسجّلة بأربعة أصوات من Gemini بنبرة حماسية، ومحفوظة ملفات MP3 مع الصفحة. اختر صوتًا من Gemini، ثم اسمع كل جملة بالصوتين. زر «جهازك» يستخدم الصوت والسرعة المختارين في الأعلى.</p>
     <div class="chips" id="chips" role="radiogroup" aria-label="صوت Gemini"></div>
+    <p class="meta" id="gNote" hidden></p>
     <ul class="lines" id="cmpLines"></ul>
     <div class="row" style="margin-top:14px">
       <button class="btn primary" id="abAllBtn" type="button">اسمع المقارنة كاملة</button>
@@ -191,6 +192,9 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
     { id: 'Zephyr', trait: 'صوت نسائي مُشرق' },
   ];
   const clip = (id, i) => `gemini/${id.toLowerCase()}-${i + 1}.mp3`;
+  // clip lengths from gemini/manifest.json, null for a clip not recorded yet; until it loads, every clip counts as there
+  let lengths = null;
+  const hasClip = (id, i) => !lengths || !lengths[id] || lengths[id][i] != null;
   const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>';
   const STOP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
   const $ = id => document.getElementById(id);
@@ -248,6 +252,21 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
       if (on && focus) c.focus();
     });
     document.querySelectorAll('.pbtn.g .lbl').forEach(s => { s.textContent = id; });
+    markMissing();
+  }
+  // Gemini and "both" buttons wait for the clips that are not recorded yet
+  function markMissing(){
+    document.querySelectorAll('.cmp-line').forEach((li, i) => {
+      const there = hasClip(gVoice, i);
+      li.querySelectorAll('.pbtn.g, .pbtn.both').forEach(b => {
+        b.disabled = !there;
+        b.title = there ? '' : 'لم يُسجَّل بعد';
+      });
+    });
+    const ready = LINES.filter((_, i) => hasClip(gVoice, i)).length;
+    const note = $('gNote');
+    note.hidden = ready === LINES.length;
+    note.textContent = `جاهز بصوت ${gVoice}: ${ready} من ${LINES.length} جمل. البقية لم تُسجَّل بعد.`;
   }
 
   // comparison lines: Gemini, device, then both back to back
@@ -258,7 +277,7 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
       <div class="pair">
         <button class="pbtn g" type="button"><span class="ic">${PLAY}</span><span class="lbl"></span></button>
         <button class="pbtn device" type="button"><span class="ic">${PLAY}</span><span>جهازك</span></button>
-        <button class="pbtn" type="button"><span class="ic">${PLAY}</span><span>الاثنان</span></button>
+        <button class="pbtn both" type="button"><span class="ic">${PLAY}</span><span>الاثنان</span></button>
       </div>`;
     const [gBtn, dBtn, bothBtn] = li.querySelectorAll('button');
     gBtn.setAttribute('aria-label', 'شغّل بصوت Gemini: ' + text);
@@ -375,7 +394,10 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
     stopAll();
     unlockSpeech();
     const steps = [];
-    LINES.forEach((_, i) => { steps.push({ gemini: gVoice, i }); if (hasSpeech) steps.push({ device: true, i }); });
+    LINES.forEach((_, i) => {
+      if (hasClip(gVoice, i)) steps.push({ gemini: gVoice, i });
+      if (hasSpeech) steps.push({ device: true, i });
+    });
     sequence(steps, btn, 'انتهت المقارنة.');
   });
   $('allGeminiBtn').addEventListener('click', e => {
@@ -383,11 +405,12 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
     if (activeBtn === btn){ stopAll(); return; }
     stopAll();
     const my = run;
+    const list = GEMINI.filter(g => hasClip(g.id, 0));
     let k = 0;
     const next = ok => {
       if (my !== run) return;
       if (ok === false){ setActive(null); return; }
-      const g = GEMINI[k++];
+      const g = list[k++];
       if (!g){ setActive(null); cmpNow.textContent = 'انتهت أصوات Gemini.'; return; }
       const go = () => {
         if (my !== run) return;
@@ -409,7 +432,12 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
       const kb = Math.round(sizes.reduce((a, b) => a + b, 0) / sizes.length / 1024);
       $('sizeCell').textContent = `نحو ${kb} كيلوبايت للجملة`;
     }
-    $('meta').innerHTML = `وُلّدت بنموذج <bdi>${m.model}</bdi> في <bdi>${m.generated}</bdi>.`;
+    lengths = m.durations || null;
+    const all = Object.values(lengths || {}).flat();
+    const ready = all.filter(d => d != null).length;
+    $('meta').innerHTML = `وُلّدت بنموذج <bdi>${m.model}</bdi> في <bdi>${m.generated}</bdi>.`
+      + (all.length && ready < all.length ? ` جاهز ${ready} من ${all.length} مقطعًا.` : '');
+    markMissing();
   }).catch(() => {});
 
   if (!hasSpeech){

@@ -10,7 +10,8 @@ with "AQ."). One request per line and voice; it writes:
   voice-lab/gemini/manifest.json     model, voices, lines and clip lengths, read by the page
 
 Clips that already exist are skipped, so a run stopped by a quota limit picks
-up where it left off. --force regenerates everything.
+up where it left off, with the model named in the manifest so every clip comes
+from the same model. --force regenerates everything.
 
 usage: python3 tools/gemini-tts.py [--model NAME] [--voices Puck,Fenrir,Leda,Zephyr] [--force]
 """
@@ -34,15 +35,17 @@ VERTEX_MODELS = ['gemini-2.5-flash-tts', 'gemini-2.5-flash-preview-tts', 'gemini
 OUT = Path(__file__).resolve().parent.parent / 'voice-lab' / 'gemini'
 
 # The same six lines as the page, so the device voice and Gemini read identical text.
-# The direction tells Gemini how each moment should feel; the line itself is read as written.
+# The direction tells Gemini how each moment should feel. It is kept to the short "Say ...:" form
+# from Google's TTS guide: a longer English instruction gets read aloud before the Arabic line.
 LINES = [
-    ('مرحبًا يا بطل! استعدّ للانطلاق.', 'بداية اللعبة', 'an excited, warm welcome that makes a kid want to start playing'),
-    ('تحذير! التنّين المدرّع قادم.', 'قبل الزعيم', 'a dramatic, suspenseful warning that is thrilling but never scary'),
-    ('أحسنت! انضمّت إليك مركبة جديدة.', 'بوابة السفينة', 'delighted and proud, cheering the kid on'),
-    ('قوّة إضافية! أسلحتك أصبحت أقوى.', 'بوابة القوة', 'punchy and energetic, like a power-up announcement'),
-    ('انتهت المرحلة الأولى. رائع!', 'نهاية المرحلة', 'a happy celebration of finishing the level'),
-    ('خسرت هذه المرّة. حاول مرّة أخرى!', 'شاشة الخسارة', 'kind and encouraging, upbeat rather than sad'),
+    ('مرحبًا يا بطل! استعدّ للانطلاق.', 'بداية اللعبة', 'Say excitedly and warmly'),
+    ('تحذير! التنّين المدرّع قادم.', 'قبل الزعيم', 'Say dramatically, as a thrilling warning'),
+    ('أحسنت! انضمّت إليك مركبة جديدة.', 'بوابة السفينة', 'Say with delight and pride'),
+    ('قوّة إضافية! أسلحتك أصبحت أقوى.', 'بوابة القوة', 'Say energetically, like a power-up'),
+    ('انتهت المرحلة الأولى. رائع!', 'نهاية المرحلة', 'Say happily, celebrating'),
+    ('خسرت هذه المرّة. حاول مرّة أخرى!', 'شاشة الخسارة', 'Say kindly and encouragingly'),
 ]
+LONG = 8  # seconds; each line takes about 3-5, so a longer clip probably has the direction read aloud in it
 
 # Gemini's prebuilt voices that suit a lively children's game. Arabic labels are shown on the page.
 VOICES = {
@@ -52,8 +55,7 @@ VOICES = {
     'Zephyr': {'ar': 'زِفير', 'trait': 'صوت نسائي مُشرق'},
 }
 
-PROMPT = ('Read this Arabic line aloud for a children\'s video game, in clear Modern Standard Arabic, '
-          'as {style}. Say only the Arabic line:\n{text}')
+PROMPT = '{style}: {text}'
 
 
 class QuotaExhausted(Exception):
@@ -100,13 +102,15 @@ def request(url, key, body=None, tries=6):
     sys.exit(f'The API kept rate limiting {url}; try again later')
 
 
-def pick_model(key):
-    """The newest Flash TTS model the key can use (Flash TTS has a free tier; Pro does not)."""
+def pick_model(key, prefer=None):
+    """`prefer` if the key can use it, else the newest Flash TTS model (Flash TTS has a free tier; Pro does not)."""
     models = request(f'{GEMINI_API}/models?pageSize=1000', key).get('models', [])
     tts = [m['name'].removeprefix('models/') for m in models
            if 'tts' in m['name'] and 'generateContent' in m.get('supportedGenerationMethods', [])]
     if not tts:
         sys.exit('This key lists no Gemini TTS model. Pass one with --model.')
+    if prefer in tts:
+        return prefer
 
     def rank(name):
         version = tuple(int(x) for x in re.findall(r'\d+', name.split('-tts')[0])[:2])
@@ -140,6 +144,14 @@ def main():
     args = ap.parse_args()
     out = args.out
 
+    # the model that made the clips already there, so a resumed run matches them
+    prev = {}
+    if (out / 'manifest.json').exists() and not args.force:
+        try:
+            prev = json.loads((out / 'manifest.json').read_text(encoding='utf-8'))
+        except ValueError:
+            pass
+
     key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
     if not key:
         print('GEMINI_API_KEY is not set; trying a network secret for the Gemini API', flush=True)
@@ -150,7 +162,7 @@ def main():
     # Gemini API (Google AI Studio keys) first, then Vertex AI express mode with the same key
     api, models = GEMINI_API, None
     try:
-        models = [args.model or pick_model(key)]
+        models = [args.model or pick_model(key, prev.get('model'))]
     except KeyRejected as e:
         if not key:
             sys.exit(f'Gemini refused the call for lack of a key. {no_key}\n{e}')
@@ -197,7 +209,11 @@ def main():
                 sys.exit(f'no audio for {voice} line {n}: {json.dumps(res, ensure_ascii=False)[:800]}')
             m = re.search(r'rate=(\d+)', audio.get('mimeType', ''))
             to_mp3(base64.b64decode(audio['data']), int(m.group(1)) if m else 24000, dest)
-            print(f'  {dest.name}  {duration(dest):.2f}s  ({models[0]})', flush=True)
+            secs = duration(dest)
+            print(f'  {dest.name}  {secs:.2f}s  ({models[0]})', flush=True)
+            if secs > LONG:
+                print(f'  warning: {dest.name} is over {LONG}s; listen for the direction read aloud, '
+                      'delete the file and run again', flush=True)
         if stopped:
             break
 
