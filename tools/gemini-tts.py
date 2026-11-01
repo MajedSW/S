@@ -3,8 +3,9 @@
 
 Reads the key from GEMINI_API_KEY (or GOOGLE_API_KEY). Without one, it calls
 the API bare, so a key the environment stores as a network secret for
-generativelanguage.googleapis.com is added on the way. One request per line and
-voice; it writes:
+generativelanguage.googleapis.com is added on the way. If the Gemini API
+rejects the key, it tries it as a Vertex AI key (express mode, keys that start
+with "AQ."). One request per line and voice; it writes:
   voice-lab/gemini/<voice>-<n>.mp3   one clip per line (n = 1..6)
   voice-lab/gemini/manifest.json     model, voices, lines and clip lengths, read by the page
 
@@ -27,7 +28,9 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-API = os.environ.get('GEMINI_API_BASE', 'https://generativelanguage.googleapis.com/v1beta')
+GEMINI_API = os.environ.get('GEMINI_API_BASE', 'https://generativelanguage.googleapis.com/v1beta')
+VERTEX_API = os.environ.get('VERTEX_API_BASE', 'https://aiplatform.googleapis.com/v1/publishers/google')
+VERTEX_MODELS = ['gemini-2.5-flash-tts', 'gemini-2.5-flash-preview-tts', 'gemini-2.5-pro-tts']  # tried in order
 OUT = Path(__file__).resolve().parent.parent / 'voice-lab' / 'gemini'
 
 # The same six lines as the page, so the device voice and Gemini read identical text.
@@ -57,8 +60,15 @@ class QuotaExhausted(Exception):
     pass
 
 
-def request(path, key, body=None, tries=6):
-    url = f'{API}/{path}'
+class KeyRejected(Exception):
+    pass
+
+
+class ModelNotFound(Exception):
+    pass
+
+
+def request(url, key, body=None, tries=6):
     data = None if body is None else json.dumps(body).encode()
     ctx = ssl.create_default_context(cafile=os.environ.get('SSL_CERT_FILE') or None)
     for attempt in range(tries):
@@ -79,20 +89,20 @@ def request(path, key, body=None, tries=6):
                 print(f'  rate limited, waiting {wait:.0f}s', flush=True)
                 time.sleep(wait)
                 continue
-            if e.code in (401, 403) and re.search(r'API key|unregistered callers|API_KEY', text):
-                sys.exit('Gemini refused the call for lack of a valid key. Add it to the cloud environment '
-                         '(Network secrets for generativelanguage.googleapis.com, or the environment '
-                         'variable GEMINI_API_KEY=...) and start a new session.\n' + text[:600])
+            if e.code in (400, 401, 403) and re.search(r'API key|unregistered callers|API_KEY', text):
+                raise KeyRejected(text[:600])
+            if e.code == 404 or (e.code == 400 and re.search(r'not (found|supported)', text, re.I)):
+                raise ModelNotFound(text[:600])
             if e.code >= 500 and attempt < tries - 1:
                 time.sleep(5 * (attempt + 1))
                 continue
-            sys.exit(f'Gemini API {e.code} for {path}:\n{text[:2000]}')
-    sys.exit(f'Gemini API kept rate limiting {path}; try again later')
+            sys.exit(f'API error {e.code} for {url}:\n{text[:2000]}')
+    sys.exit(f'The API kept rate limiting {url}; try again later')
 
 
 def pick_model(key):
     """The newest Flash TTS model the key can use (Flash TTS has a free tier; Pro does not)."""
-    models = request('models?pageSize=1000', key).get('models', [])
+    models = request(f'{GEMINI_API}/models?pageSize=1000', key).get('models', [])
     tts = [m['name'].removeprefix('models/') for m in models
            if 'tts' in m['name'] and 'generateContent' in m.get('supportedGenerationMethods', [])]
     if not tts:
@@ -134,9 +144,33 @@ def main():
     if not key:
         print('GEMINI_API_KEY is not set; trying a network secret for the Gemini API', flush=True)
     voices = [v.strip() for v in args.voices.split(',') if v.strip()]
-    model = args.model or pick_model(key)
-    print(f'model: {model}\nvoices: {", ".join(voices)}', flush=True)
+    no_key = ('Add the key to the cloud environment (the environment variable line GEMINI_API_KEY=<key>, '
+              'or Network secrets for generativelanguage.googleapis.com) and start a new session.')
+
+    # Gemini API (Google AI Studio keys) first, then Vertex AI express mode with the same key
+    api, models = GEMINI_API, None
+    try:
+        models = [args.model or pick_model(key)]
+    except KeyRejected as e:
+        if not key:
+            sys.exit(f'Gemini refused the call for lack of a key. {no_key}\n{e}')
+        print('the Gemini API rejected the key; trying it as a Vertex AI key', flush=True)
+        api, models = VERTEX_API, [args.model] if args.model else VERTEX_MODELS
+    print(f'api: {api}\nvoices: {", ".join(voices)}', flush=True)
     out.mkdir(parents=True, exist_ok=True)
+
+    def generate(body):
+        """Calls the first model that answers; on Vertex, models that do not exist are skipped."""
+        while True:
+            try:
+                return request(f'{api}/models/{models[0]}:generateContent', key, body)
+            except ModelNotFound as e:
+                if len(models) == 1:
+                    sys.exit(f'model {models[0]} is not available here. Pass another with --model.\n{e}')
+                print(f'  {models.pop(0)} is not available; trying {models[0]}', flush=True)
+            except KeyRejected as e:
+                sys.exit(f'{api} rejected the key. Gemini API keys come from Google AI Studio '
+                         f'(aistudio.google.com/apikey). {no_key}\n{e}')
 
     stopped = None
     # line by line, so a run cut short still has every voice on the first lines to compare
@@ -153,7 +187,7 @@ def main():
                 },
             }
             try:
-                res = request(f'models/{model}:generateContent', key, body)
+                res = generate(body)
             except QuotaExhausted as e:
                 stopped = str(e)[:600]
                 break
@@ -163,13 +197,13 @@ def main():
                 sys.exit(f'no audio for {voice} line {n}: {json.dumps(res, ensure_ascii=False)[:800]}')
             m = re.search(r'rate=(\d+)', audio.get('mimeType', ''))
             to_mp3(base64.b64decode(audio['data']), int(m.group(1)) if m else 24000, dest)
-            print(f'  {dest.name}  {duration(dest):.2f}s', flush=True)
+            print(f'  {dest.name}  {duration(dest):.2f}s  ({models[0]})', flush=True)
         if stopped:
             break
 
     clips = {v: [f'gemini/{v.lower()}-{n}.mp3' for n in range(1, len(LINES) + 1)] for v in voices}
     manifest = {
-        'model': model,
+        'model': models[0],
         'generated': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
         'prompt': PROMPT,
         'voices': [{'id': v, **VOICES.get(v, {'ar': v, 'trait': ''})} for v in voices],
