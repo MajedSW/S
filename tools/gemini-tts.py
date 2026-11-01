@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Voice the Arabic voice lab's game lines with Gemini TTS and save them as MP3.
 
-Reads the key from GEMINI_API_KEY (or GOOGLE_API_KEY), sends one request per
-line and voice, and writes:
+Reads the key from GEMINI_API_KEY (or GOOGLE_API_KEY). Without one, it calls
+the API bare, so a key the environment stores as a network secret for
+generativelanguage.googleapis.com is added on the way. One request per line and
+voice; it writes:
   voice-lab/gemini/<voice>-<n>.mp3   one clip per line (n = 1..6)
   voice-lab/gemini/manifest.json     model, voices, lines and clip lengths, read by the page
 
@@ -60,8 +62,10 @@ def request(path, key, body=None, tries=6):
     data = None if body is None else json.dumps(body).encode()
     ctx = ssl.create_default_context(cafile=os.environ.get('SSL_CERT_FILE') or None)
     for attempt in range(tries):
-        req = urllib.request.Request(url, data=data, method='POST' if data else 'GET', headers={
-            'x-goog-api-key': key, 'Content-Type': 'application/json'})
+        headers = {'Content-Type': 'application/json'}
+        if key:
+            headers['x-goog-api-key'] = key
+        req = urllib.request.Request(url, data=data, method='POST' if data else 'GET', headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=120, context=ctx) as r:
                 return json.load(r)
@@ -75,6 +79,10 @@ def request(path, key, body=None, tries=6):
                 print(f'  rate limited, waiting {wait:.0f}s', flush=True)
                 time.sleep(wait)
                 continue
+            if e.code in (401, 403) and re.search(r'API key|unregistered callers|API_KEY', text):
+                sys.exit('Gemini refused the call for lack of a valid key. Add it to the cloud environment '
+                         '(Network secrets for generativelanguage.googleapis.com, or the environment '
+                         'variable GEMINI_API_KEY=...) and start a new session.\n' + text[:600])
             if e.code >= 500 and attempt < tries - 1:
                 time.sleep(5 * (attempt + 1))
                 continue
@@ -124,8 +132,7 @@ def main():
 
     key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
     if not key:
-        sys.exit('GEMINI_API_KEY is not set in this session. Add it to the cloud environment '
-                 'as an environment variable (GEMINI_API_KEY=...) and start a new session.')
+        print('GEMINI_API_KEY is not set; trying a network secret for the Gemini API', flush=True)
     voices = [v.strip() for v in args.voices.split(',') if v.strip()]
     model = args.model or pick_model(key)
     print(f'model: {model}\nvoices: {", ".join(voices)}', flush=True)

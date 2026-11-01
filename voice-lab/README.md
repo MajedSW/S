@@ -4,7 +4,7 @@
 
 ## توليد أصوات Gemini
 
-يحتاج متغير البيئة `GEMINI_API_KEY` في بيئة الجلسة السحابية.
+يحتاج مفتاح Gemini في بيئة الجلسة السحابية: في قسم Network secrets للعنوان `generativelanguage.googleapis.com`، أو متغير البيئة `GEMINI_API_KEY`.
 
 ```
 python3 tools/gemini-tts.py            # 6 جمل × 4 أصوات (Puck, Fenrir, Leda, Zephyr)
