@@ -1,0 +1,127 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "generated": "2026-11-01",
+  "prompt": "Read this Arabic line aloud for a children's video game, in clear Modern Standard Arabic, as {style}. Say only the Arabic line:\n{text}",
+  "voices": [
+    {
+      "id": "Puck",
+      "ar": "بَك",
+      "trait": "صوت رجالي مَرِح"
+    },
+    {
+      "id": "Fenrir",
+      "ar": "فِنرير",
+      "trait": "صوت رجالي متحمّس"
+    },
+    {
+      "id": "Leda",
+      "ar": "ليدا",
+      "trait": "صوت نسائي شبابي"
+    },
+    {
+      "id": "Zephyr",
+      "ar": "زِفير",
+      "trait": "صوت نسائي مُشرق"
+    }
+  ],
+  "lines": [
+    {
+      "text": "مرحبًا يا بطل! استعدّ للانطلاق.",
+      "where": "بداية اللعبة",
+      "style": "an excited, warm welcome that makes a kid want to start playing"
+    },
+    {
+      "text": "تحذير! التنّين المدرّع قادم.",
+      "where": "قبل الزعيم",
+      "style": "a dramatic, suspenseful warning that is thrilling but never scary"
+    },
+    {
+      "text": "أحسنت! انضمّت إليك مركبة جديدة.",
+      "where": "بوابة السفينة",
+      "style": "delighted and proud, cheering the kid on"
+    },
+    {
+      "text": "قوّة إضافية! أسلحتك أصبحت أقوى.",
+      "where": "بوابة القوة",
+      "style": "punchy and energetic, like a power-up announcement"
+    },
+    {
+      "text": "انتهت المرحلة الأولى. رائع!",
+      "where": "نهاية المرحلة",
+      "style": "a happy celebration of finishing the level"
+    },
+    {
+      "text": "خسرت هذه المرّة. حاول مرّة أخرى!",
+      "where": "شاشة الخسارة",
+      "style": "kind and encouraging, upbeat rather than sad"
+    }
+  ],
+  "durations": {
+    "Puck": [
+      3.31,
+      3.72,
+      4.1,
+      null,
+      null,
+      null
+    ],
+    "Fenrir": [
+      3.67,
+      3.7,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Leda": [
+      3.82,
+      5.14,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Zephyr": [
+      4.18,
+      4.1,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "bytes": {
+    "Puck": [
+      26733,
+      29997,
+      33069,
+      null,
+      null,
+      null
+    ],
+    "Fenrir": [
+      29613,
+      29805,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Leda": [
+      30765,
+      41325,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Zephyr": [
+      33645,
+      33069,
+      null,
+      null,
+      null,
+      null
+    ]
+  }
+}
