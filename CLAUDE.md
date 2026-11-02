@@ -69,8 +69,9 @@ Web Audio unlocked by that first tap is what lets a line play later from a game 
 ## Setup and limits
 
 - `AZURE_SPEECH_KEY` is an environment variable in the cloud environment (not a Network secret: Azure
-  reads the key from its own header), and `qatarcentral.tts.speech.microsoft.com` is under Allowed domains
-  in its network access. The region is qatarcentral unless `AZURE_SPEECH_REGION` says otherwise.
+  reads the key from its own header). Network access is Full, or Limited with
+  `qatarcentral.tts.speech.microsoft.com` under Allowed domains. The region is qatarcentral unless
+  `AZURE_SPEECH_REGION` says otherwise.
 - Azure's free tier: 500,000 characters a month (about 10,000 vowelled lines) and about 20 requests a
   minute; the script waits when told to slow down. When the month's quota runs out, Azure refuses until
   the next month and nothing is charged.

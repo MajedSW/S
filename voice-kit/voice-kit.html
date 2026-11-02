@@ -88,7 +88,7 @@ textarea{width:100%;min-height:220px;direction:ltr;text-align:left;font:13px/1.5
       <p>في الحساب الآخر، من قائمة البيئة السحابية في أعلى الجلسة اختر <span class="path">Edit</span>:</p>
       <p>في <span class="path">Environment variables</span> الصق هذا السطر، ثم الصق المفتاح بعد علامة = مباشرة وبلا مسافة. ضعه هنا، لا في <bdi>Network secrets</bdi>، فهناك لا يصل إلى Azure.</p>
       <div class="copy"><code id="envLine">AZURE_SPEECH_KEY=</code><button class="btn" type="button" data-copy="envLine">نسخ</button></div>
-      <p>في <span class="path">Network access</span> اختر <bdi>Limited</bdi>، وأضف هذا العنوان إلى <span class="path">Allowed domains</span>، واترك خيار <bdi>Allow package managers</bdi> مفعّلًا. في التطبيق القديم تظهر هذه القائمة تحت <bdi>Custom</bdi>.</p>
+      <p>في <span class="path">Network access</span> اختر <bdi>Full</bdi>، وهذا يكفي: يسمح بكل العناوين، ومنها عنوان Azure. وإن أردت إبقاء الجلسات مقيّدة، فاختر <bdi>Limited</bdi> وأضف هذا العنوان إلى <span class="path">Allowed domains</span>، واترك خيار <bdi>Allow package managers</bdi> مفعّلًا. في التطبيق القديم تظهر هذه القائمة تحت <bdi>Custom</bdi>.</p>
       <div class="copy"><code id="domain">qatarcentral.tts.speech.microsoft.com</code><button class="btn" type="button" data-copy="domain">نسخ</button></div>
       <p>ثم احفظ التغييرات.</p>
       <details>
