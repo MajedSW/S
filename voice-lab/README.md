@@ -35,7 +35,7 @@ python3 tools/azure-tts.py --check   # يعرض الأصوات العربية: �
 python3 tools/azure-tts.py           # 6 جمل × صوتين سعوديين (حامد وزارية)
 ```
 
-يكتب `voice-lab/azure/<voice>-<n>.mp3` و`voice-lab/azure/manifest.json`، بالجمل نفسها وبالترميز نفسه لمقاطع Gemini. يستخدم واجهة REST مباشرة لأن حزمة Speech SDK تتصل عبر WebSocket، وشبكة الجلسة لا تمرّرها.
+يكتب `voice-lab/azure/<voice>-<n>.mp3` و`voice-lab/azure/manifest.json`، بالجمل نفسها وبالترميز نفسه لمقاطع Gemini. صوت Azure أخفض من Gemini بنحو 6 ديسيبل، فيرفع السكربت كل مقطع إلى مستوى مقاطع Gemini (‎-14.5 LUFS) مع محدِّد عند ‎-2 dBFS، حتى لا يبدو أحد الصوتين أفضل لمجرد أنه أعلى. يستخدم واجهة REST مباشرة لأن حزمة Speech SDK تتصل عبر WebSocket، وشبكة الجلسة لا تمرّرها.
 
 ## النشر
 

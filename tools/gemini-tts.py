@@ -119,13 +119,13 @@ def pick_model(key, prefer=None):
     return max(tts, key=rank)
 
 
-def to_mp3(pcm, rate, dest):
-    """16-bit mono PCM -> trimmed MP3, keeping 60 ms of quiet at each end."""
+def to_mp3(pcm, rate, dest, extra=''):
+    """16-bit mono PCM -> trimmed MP3, keeping 60 ms of quiet at each end. extra: more ffmpeg filters."""
     trim = 'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.06'
     subprocess.run([
         'ffmpeg', '-hide_banner', '-loglevel', 'error', '-y',
         '-f', 's16le', '-ar', str(rate), '-ac', '1', '-i', 'pipe:0',
-        '-af', f'{trim},areverse,{trim},areverse',
+        '-af', f'{trim},areverse,{trim},areverse' + (f',{extra}' if extra else ''),
         '-codec:a', 'libmp3lame', '-b:a', '64k', str(dest),
     ], input=pcm, check=True)
 

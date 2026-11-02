@@ -21,6 +21,7 @@ import json
 import os
 import re
 import ssl
+import subprocess
 import sys
 import time
 import urllib.error
@@ -37,6 +38,22 @@ _spec.loader.exec_module(gemini)
 OUT = Path(__file__).resolve().parent.parent / 'voice-lab' / 'azure'
 RATE = 24000
 FORMAT = 'raw-24khz-16bit-mono-pcm'  # raw PCM, trimmed and encoded the same way as the Gemini clips
+# Azure speaks about 6 dB quieter than Gemini. Each clip is raised to the Gemini clips' loudness, with a
+# limiter at -2 dBFS (MP3 encoding overshoots a little), so neither side of the comparison wins by being louder.
+TARGET_LUFS = -14.5
+
+
+def loudness(pcm):
+    """Integrated loudness (LUFS) of 16-bit mono PCM at RATE."""
+    out = subprocess.run(['ffmpeg', '-hide_banner', '-nostats', '-f', 's16le', '-ar', str(RATE), '-ac', '1',
+                          '-i', 'pipe:0', '-af', 'ebur128', '-f', 'null', '-'],
+                         input=pcm, capture_output=True, check=True)
+    return float(re.findall(r'I:\s+(-?[\d.]+) LUFS', out.stderr.decode())[-1])
+
+
+def level(pcm):
+    gain = TARGET_LUFS - loudness(pcm)
+    return f'volume={gain:.1f}dB,alimiter=limit=0.794:level=0'
 
 # Arabic labels are shown on the page. Saudi voices first; any other Azure voice name works with --voices.
 VOICES = {
@@ -132,7 +149,7 @@ def main():
             pcm = call(f'{base(region)}/cognitiveservices/v1', key, ssml(voice, text))
             if len(pcm) < RATE:  # under half a second of audio
                 sys.exit(f'Azure returned almost no audio for {voice} line {n} ({len(pcm)} bytes)')
-            gemini.to_mp3(pcm, RATE, dest)
+            gemini.to_mp3(pcm, RATE, dest, level(pcm))
             print(f'  {dest.name}  {gemini.duration(dest):.2f}s', flush=True)
 
     files = {v: [out / f'{name(v).lower()}-{n}.mp3' for n in range(1, len(gemini.LINES) + 1)] for v in voices}
@@ -140,6 +157,7 @@ def main():
         'model': 'Azure neural TTS',
         'region': region,
         'generated': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+        'loudness': f'{TARGET_LUFS} LUFS',
         'voices': [{'name': v, **VOICES.get(v, {'id': name(v), 'ar': name(v), 'trait': ''})} for v in voices],
         'lines': [{'text': t, 'where': w} for t, w, _ in gemini.LINES],
         'durations': {name(v): [gemini.duration(f) if f.exists() else None for f in files[v]] for v in voices},
