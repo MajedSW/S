@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Voice the Arabic voice lab's game lines with Microsoft Azure neural voices and save them as MP3.
 
-Reads AZURE_SPEECH_KEY and AZURE_SPEECH_REGION (the Location/Region of the
-Speech resource, e.g. eastus). It calls the plain REST endpoint on
+Reads AZURE_SPEECH_KEY and, optionally, AZURE_SPEECH_REGION (the Speech
+resource's Location/Region; default qatarcentral). It calls the plain REST endpoint on
 <region>.tts.speech.microsoft.com, so that host must be allowed in the
 environment's network access. (The Speech SDK talks over WebSocket, which the
 session's proxy does not carry.) One request per line and voice; it writes:
@@ -36,6 +36,7 @@ gemini = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(gemini)
 
 OUT = Path(__file__).resolve().parent.parent / 'voice-lab' / 'azure'
+DEFAULT_REGION = 'qatarcentral'  # where this repo's Speech resource lives; AZURE_SPEECH_REGION overrides it
 RATE = 24000
 FORMAT = 'raw-24khz-16bit-mono-pcm'  # raw PCM, trimmed and encoded the same way as the Gemini clips
 # Azure speaks about 6 dB quieter than Gemini. Each clip is raised to the Gemini clips' loudness, with a
@@ -133,6 +134,17 @@ def ssml(voice, text):
     return (f"<speak version='1.0' xml:lang='{lang}'><voice name='{voice}'>{escape(text)}</voice></speak>").encode()
 
 
+def credentials():
+    """(key, region) from the environment, or exit saying what to set."""
+    key = os.environ.get('AZURE_SPEECH_KEY')
+    region = (os.environ.get('AZURE_SPEECH_REGION') or DEFAULT_REGION).strip().lower().replace(' ', '')
+    if not key:
+        sys.exit('AZURE_SPEECH_KEY is not set. Add AZURE_SPEECH_KEY=<KEY 1 from the Speech resource\'s Keys and '
+                 'Endpoint> to the cloud environment\'s environment variables, allow '
+                 f'{region}.tts.speech.microsoft.com in its network access, and start a new session.')
+    return key, region
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     ap.add_argument('--check', action='store_true', help='list the Arabic voices for this key and region, then stop')
@@ -141,15 +153,7 @@ def main():
     ap.add_argument('--out', type=Path, default=OUT, help=f'output folder (default: {OUT})')
     args = ap.parse_args()
 
-    key, region = os.environ.get('AZURE_SPEECH_KEY'), os.environ.get('AZURE_SPEECH_REGION')
-    region = (region or '').strip().lower().replace(' ', '')  # "Qatar Central" -> qatarcentral
-    missing = [n for n, v in (('AZURE_SPEECH_KEY', key), ('AZURE_SPEECH_REGION', region)) if not v]
-    if missing:
-        host = f'{region or "<region>"}.tts.speech.microsoft.com'
-        sys.exit(f'{" and ".join(missing)} {"is" if len(missing) == 1 else "are"} not set. Add '
-                 + ', '.join(f'{n}=<value>' for n in missing)
-                 + ' to the cloud environment\'s environment variables (KEY 1 and Location/Region from the Speech '
-                 f'resource\'s Keys and Endpoint), allow {host} in its network access, and start a new session.')
+    key, region = credentials()
 
     if args.check:
         voices = call(f'{base(region)}/cognitiveservices/voices/list', key, accept_json=True)

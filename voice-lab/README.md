@@ -25,7 +25,7 @@ python3 tools/gemini-tts.py --voices Puck,Leda --force   # أصوات أخرى �
 
 يحتاج مورد Azure Speech بفئة Free F0، ثم في إعدادات البيئة السحابية:
 
-- متغيرا البيئة `AZURE_SPEECH_KEY` (قيمة KEY 1 من Keys and Endpoint) و`AZURE_SPEECH_REGION` (قيمة Location/Region، مثل `qatarcentral` أو `eastus`).
+- متغير البيئة `AZURE_SPEECH_KEY` (قيمة KEY 1 من Keys and Endpoint). المنطقة الافتراضية `qatarcentral`، ويغيّرها المتغير `AZURE_SPEECH_REGION` إن نُقل المورد.
 - السماح بالعنوان `<المنطقة>.tts.speech.microsoft.com` في Allowed domains ضمن Network access، مثل `qatarcentral.tts.speech.microsoft.com`.
 
 المفتاح يعمل فقط مع منطقة المورد نفسه، فإذا تغيّرت المنطقة تغيّر العنوان المسموح به أيضًا.
@@ -40,6 +40,10 @@ python3 tools/azure-tts.py           # 6 جمل × صوتين سعوديين (ح
 ### التشكيل
 
 يقرأ Azure الجمل مشكولة بالكامل من القائمة `SPOKEN` في `tools/azure-tts.py`. ما لا يُكتب من الحركات يخمّنه Azure بنفسه، وما يُكتب يلتزم به: النص نفسه يعطي الصوت نفسه حرفيًا، وتغيير حركة واحدة يغيّر الصوت. ويقف على آخر كلمة في الجملة بالسكون من تلقاء نفسه، فـ«قَادِمٌ.» تُقرأ «قَادِمْ». لتصحيح نطق كلمة، عدّل حركاتها في `SPOKEN` ثم شغّل السكربت مع `--force`. يتأكد السكربت أن حروف كل جملة مشكولة تطابق جملتها في `tools/gemini-tts.py`.
+
+## أصوات الألعاب القادمة
+
+لأي لعبة أو برنامج جديد: `tools/game-voices.py` يأخذ ملف جمل مشكولة ويكتب ملف MP3 لكل جملة مع `manifest.json`، ويعيد توليد الجمل التي تغيّرت فقط. التفاصيل وطريقة تشغيل المقاطع داخل اللعبة في `CLAUDE.md`.
 
 ## النشر
 
