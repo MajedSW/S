@@ -133,7 +133,7 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
 
   <section aria-labelledby="cmpTitle">
     <h2 id="cmpTitle">صوت مسجّل أم صوت جهازك؟</h2>
-    <p class="sub">الجمل نفسها مسجّلة بأربعة أصوات من Gemini بنبرة حماسية<span id="azureSub" hidden>، وبأصوات Azure السعودية بلا توجيه للنبرة</span>، ومحفوظة ملفات MP3 مع الصفحة. اختر صوتًا مسجّلًا، ثم اسمع كل جملة بالصوتين. زر «جهازك» يستخدم الصوت والسرعة المختارين في الأعلى.</p>
+    <p class="sub">الجمل نفسها مسجّلة بأربعة أصوات من Gemini بنبرة حماسية<span id="azureSub" hidden>، وبأصوات Azure السعودية بالتشكيل الكامل المكتوب هنا وبلا توجيه للنبرة</span>، ومحفوظة ملفات MP3 مع الصفحة. اختر صوتًا مسجّلًا، ثم اسمع كل جملة بالصوتين. زر «جهازك» يستخدم الصوت والسرعة المختارين في الأعلى.</p>
     <div class="chips" id="chips" role="radiogroup" aria-label="الصوت المسجّل"></div>
     <p class="meta" id="gNote" hidden></p>
     <ul class="lines" id="cmpLines"></ul>
@@ -177,13 +177,14 @@ select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-vis
 
 <script>
 (() => {
+  // fully vowelled, as Azure reads them (SPOKEN in tools/azure-tts.py); Gemini's clips came from the same lines without the tashkeel
   const LINES = [
-    ['مرحبًا يا بطل! استعدّ للانطلاق.', 'بداية اللعبة'],
-    ['تحذير! التنّين المدرّع قادم.', 'قبل الزعيم'],
-    ['أحسنت! انضمّت إليك مركبة جديدة.', 'بوابة السفينة'],
-    ['قوّة إضافية! أسلحتك أصبحت أقوى.', 'بوابة القوة'],
-    ['انتهت المرحلة الأولى. رائع!', 'نهاية المرحلة'],
-    ['خسرت هذه المرّة. حاول مرّة أخرى!', 'شاشة الخسارة'],
+    ['مَرْحَبًا يَا بَطَلُ! اسْتَعِدَّ لِلِانْطِلَاقِ.', 'بداية اللعبة'],
+    ['تَحْذِيرٌ! التِّنِّينُ الْمُدَرَّعُ قَادِمٌ.', 'قبل الزعيم'],
+    ['أَحْسَنْتَ! انْضَمَّتْ إِلَيْكَ مَرْكَبَةٌ جَدِيدَةٌ.', 'بوابة السفينة'],
+    ['قُوَّةٌ إِضَافِيَّةٌ! أَسْلِحَتُكَ أَصْبَحَتْ أَقْوَى.', 'بوابة القوة'],
+    ['انْتَهَتِ الْمَرْحَلَةُ الْأُولَى. رَائِعٌ!', 'نهاية المرحلة'],
+    ['خَسِرْتَ هَذِهِ الْمَرَّةَ. حَاوِلْ مَرَّةً أُخْرَى!', 'شاشة الخسارة'],
   ];
   // Recorded voices; clips live at <dir>/<id lowercased>-<line number>.mp3. Gemini must match VOICES in
   // tools/gemini-tts.py. Azure voices come from azure/manifest.json (tools/azure-tts.py), so they show up once recorded.

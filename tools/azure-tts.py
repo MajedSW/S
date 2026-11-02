@@ -55,6 +55,30 @@ def level(pcm):
     gain = TARGET_LUFS - loudness(pcm)
     return f'volume={gain:.1f}dB,alimiter=limit=0.794:level=0'
 
+
+# The lines as Azure reads them: fully vowelled. Azure guesses any vowel that is not written and follows
+# the ones that are (one changed haraka changes the audio), so every word carries its tashkeel. It pauses
+# on the last word of a sentence by itself, so «قَادِمٌ.» is read «قَادِمْ». Each entry is gemini.LINES'
+# line with diacritics added; main() checks the letters still match.
+SPOKEN = [
+    'مَرْحَبًا يَا بَطَلُ! اسْتَعِدَّ لِلِانْطِلَاقِ.',
+    'تَحْذِيرٌ! التِّنِّينُ الْمُدَرَّعُ قَادِمٌ.',
+    'أَحْسَنْتَ! انْضَمَّتْ إِلَيْكَ مَرْكَبَةٌ جَدِيدَةٌ.',
+    'قُوَّةٌ إِضَافِيَّةٌ! أَسْلِحَتُكَ أَصْبَحَتْ أَقْوَى.',
+    'انْتَهَتِ الْمَرْحَلَةُ الْأُولَى. رَائِعٌ!',
+    'خَسِرْتَ هَذِهِ الْمَرَّةَ. حَاوِلْ مَرَّةً أُخْرَى!',
+]
+HARAKAT = re.compile('[ً-ْٰ]')
+
+
+def check_spoken():
+    if len(SPOKEN) != len(gemini.LINES):
+        sys.exit(f'SPOKEN has {len(SPOKEN)} lines, gemini-tts.py LINES has {len(gemini.LINES)}')
+    for n, (said, (text, _, _)) in enumerate(zip(SPOKEN, gemini.LINES), 1):
+        if HARAKAT.sub('', said) != HARAKAT.sub('', text):
+            sys.exit(f'SPOKEN line {n} is not line {n} of LINES with diacritics added:\n  {said}\n  {text}')
+
+
 # Arabic labels are shown on the page. Saudi voices first; any other Azure voice name works with --voices.
 VOICES = {
     'ar-SA-HamedNeural':   {'id': 'Hamed', 'ar': 'حامد', 'trait': 'صوت رجالي سعودي'},
@@ -135,13 +159,14 @@ def main():
         print(f'{len(arabic)} Arabic voices in {region}; the key, region and network all work')
         return
 
+    check_spoken()
     voices = [v.strip() for v in args.voices.split(',') if v.strip()]
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
     name = lambda v: VOICES.get(v, {}).get('id') or v.split('-')[-1].removesuffix('Neural')
     print(f'region: {region}\nvoices: {", ".join(voices)}', flush=True)
 
-    for n, (text, _where, _style) in enumerate(gemini.LINES, 1):
+    for n, text in enumerate(SPOKEN, 1):
         for voice in voices:
             dest = out / f'{name(voice).lower()}-{n}.mp3'
             if dest.exists() and not args.force:
@@ -159,7 +184,7 @@ def main():
         'generated': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
         'loudness': f'{TARGET_LUFS} LUFS',
         'voices': [{'name': v, **VOICES.get(v, {'id': name(v), 'ar': name(v), 'trait': ''})} for v in voices],
-        'lines': [{'text': t, 'where': w} for t, w, _ in gemini.LINES],
+        'lines': [{'text': t, 'where': w, 'said': said} for (t, w, _), said in zip(gemini.LINES, SPOKEN)],
         'durations': {name(v): [gemini.duration(f) if f.exists() else None for f in files[v]] for v in voices},
         'bytes': {name(v): [f.stat().st_size if f.exists() else None for f in files[v]] for v in voices},
     }
