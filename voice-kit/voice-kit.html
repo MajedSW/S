@@ -1,0 +1,179 @@
+<title>عُدّة أصوات Azure</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@700;800&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Layout: one right-to-left column of three numbered steps (the order matters); every value to paste sits
+   in a left-to-right box with its own copy button. The setup message is built from the published kit files. */
+:root{
+  --bg:#f3f6f5;
+  --card:#ffffff;
+  --ink:#12201c;
+  --muted:#4d625c;
+  --line:#d3dfdb;
+  --code-bg:#e8efec;
+  --accent:#0a7562;
+  --accent-ink:#ffffff;
+  --accent-text:#08624f;
+  --warn:#9a4a00;
+  --display:'Baloo Bhaijaan 2','Tajawal','Geeza Pro','Segoe UI',sans-serif;
+  --body:'Tajawal','Geeza Pro','Segoe UI','Noto Sans Arabic',sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1412; --card:#13201c; --ink:#e4eeeb; --muted:#9db3ac; --line:#26372f; --code-bg:#0f1a17;
+    --accent:#4fcfb2; --accent-ink:#04201a; --accent-text:#6fdcc2; --warn:#ffb070;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1412; --card:#13201c; --ink:#e4eeeb; --muted:#9db3ac; --line:#26372f; --code-bg:#0f1a17;
+  --accent:#4fcfb2; --accent-ink:#04201a; --accent-text:#6fdcc2; --warn:#ffb070;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font:400 18px/1.7 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.eyebrow{margin:0 0 6px;font:700 14px/1 var(--body);letter-spacing:.02em;color:var(--accent-text)}
+h1{margin:0;font:800 clamp(34px,8.5vw,50px)/1.15 var(--display);text-wrap:balance}
+.lede{margin:10px 0 0;font-size:19px;color:var(--muted);max-width:44ch}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;counter-reset:step}
+.step{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.step h2{margin:0;display:flex;align-items:center;gap:10px;font:800 22px/1.3 var(--display);text-wrap:balance}
+.step h2::before{counter-increment:step;content:counter(step);flex:none;width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font:800 18px/1 var(--body)}
+.step p{margin:0}
+.path{font-weight:700}
+a{color:var(--accent-text);text-underline-offset:3px}
+.copy{display:flex;align-items:stretch;gap:8px;min-width:0}
+.copy code{flex:1;min-width:0;direction:ltr;text-align:left;font:500 15px/1.4 var(--mono);background:var(--code-bg);
+  border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;overflow-wrap:anywhere;user-select:all}
+.btn{flex:none;font:700 16px/1 var(--body);border-radius:10px;padding:12px 16px;cursor:pointer;
+  border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);min-width:84px}
+.btn.big{width:100%;padding:15px 18px;font-size:18px}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn:focus-visible,summary:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:15px;color:var(--muted)}
+.warn{color:var(--warn);font-weight:700}
+details{border-top:1.5px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font:700 16px/1.4 var(--body);color:var(--accent-text)}
+details > *:not(summary){margin-top:10px}
+textarea{width:100%;min-height:220px;direction:ltr;text-align:left;font:13px/1.5 var(--mono);color:var(--ink);
+  background:var(--code-bg);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
+.status{min-height:1.5em;font:500 15px/1.5 var(--body);color:var(--muted)}
+.after{display:flex;flex-direction:column;gap:8px}
+.after h2{margin:0;font:800 22px/1.3 var(--display)}
+.after p{margin:0}
+.say{font-weight:700}
+</style>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header>
+    <p class="eyebrow">لحساب Claude آخر</p>
+    <h1>عُدّة أصوات Azure</h1>
+    <p class="lede">ثلاث خطوات نسخ ولصق، فيصير لألعاب الحساب الآخر صوت حامد وتشكيله الكامل. الشيء الوحيد الذي تكتبه بنفسك هو المفتاح.</p>
+  </header>
+
+  <ol class="steps">
+    <li class="step">
+      <h2>انسخ مفتاح Azure</h2>
+      <p>في <a href="https://portal.azure.com" target="_blank" rel="noopener">بوابة Azure</a> افتح مورد Speech، ثم <span class="path">Keys and Endpoint</span>، وانسخ <bdi>KEY 1</bdi>.</p>
+      <p class="hint">المفتاح نفسه يعمل في الحسابين، وتُقسَم بينهما الحصة المجانية: نصف مليون حرف في الشهر. <span class="warn">لا تلصق المفتاح في أي محادثة.</span></p>
+    </li>
+
+    <li class="step">
+      <h2>اضبط بيئة الحساب الآخر</h2>
+      <p>في الحساب الآخر، من قائمة البيئة السحابية في أعلى الجلسة اختر <span class="path">Edit</span>:</p>
+      <p>في <span class="path">Environment variables</span> الصق هذا السطر، ثم الصق المفتاح بعد علامة = مباشرة وبلا مسافة. ضعه هنا، لا في <bdi>Network secrets</bdi>، فهناك لا يصل إلى Azure.</p>
+      <div class="copy"><code id="envLine">AZURE_SPEECH_KEY=</code><button class="btn" type="button" data-copy="envLine">نسخ</button></div>
+      <p>في <span class="path">Network access</span> اختر <bdi>Limited</bdi>، وأضف هذا العنوان إلى <span class="path">Allowed domains</span>، واترك خيار <bdi>Allow package managers</bdi> مفعّلًا. في التطبيق القديم تظهر هذه القائمة تحت <bdi>Custom</bdi>.</p>
+      <div class="copy"><code id="domain">qatarcentral.tts.speech.microsoft.com</code><button class="btn" type="button" data-copy="domain">نسخ</button></div>
+      <p>ثم احفظ التغييرات.</p>
+      <details>
+        <summary>للحساب الآخر مورد Azure خاص به؟</summary>
+        <p class="hint">إذا كانت منطقة المورد غير قطر، فأضف تحت المفتاح سطرًا بالمنطقة كما تظهر في <span class="path">Location/Region</span>، مثل <bdi>eastus</bdi>، واجعل العنوان المسموح به <bdi dir="ltr">&lt;المنطقة&gt;.tts.speech.microsoft.com</bdi>.</p>
+        <div class="copy"><code id="regionLine">AZURE_SPEECH_REGION=</code><button class="btn" type="button" data-copy="regionLine">نسخ</button></div>
+      </details>
+    </li>
+
+    <li class="step">
+      <h2>الصق رسالة التثبيت</h2>
+      <p>افتح جلسة جديدة في الحساب الآخر على المستودع الذي ستكون فيه الألعاب، والصق هذه الرسالة كما هي. سيحفظ Claude الأداة وتعليماتها، ويتأكد من المفتاح، ويرسل لك جملة تجريبية لتسمعها.</p>
+      <button class="btn big" id="copyMsg" type="button" disabled>جارٍ تجهيز الرسالة…</button>
+      <p class="status" id="msgStatus" role="status"></p>
+      <details id="msgBox">
+        <summary>اعرض الرسالة</summary>
+        <label for="msg" class="hint">إن لم يعمل زر النسخ، حدّد كل النص هنا وانسخه.</label>
+        <textarea id="msg" readonly spellcheck="false"></textarea>
+      </details>
+    </li>
+  </ol>
+
+  <section class="after" aria-labelledby="afterTitle">
+    <h2 id="afterTitle">بعد التثبيت</h2>
+    <p>اطلب في أي جلسة على ذلك المستودع، مثلًا: <span class="say">«أضف أصوات حامد إلى لعبتي عند بدء المرحلة وقبل الزعيم»</span>. سيكتب Claude الجمل مشكولة، ويعرضها عليك، ثم يولّدها ويضعها في اللعبة.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  // published next to this page from the repository: tools/game-voices.py and CLAUDE.md
+  const FILES = [['tools/game-voices.py', 'kit/game-voices.py'], ['CLAUDE.md', 'kit/CLAUDE.md']];
+  const INTRO = [
+    'ثبّت أصوات Azure للألعاب في هذا المستودع:',
+    '1. احفظ الملفين في آخر هذه الرسالة كما هما حرفيًا، كل واحد في مساره: tools/game-voices.py و CLAUDE.md. إن كان في المستودع CLAUDE.md من قبل، فأضف المحتوى في آخره.',
+    '2. شغّل: python3 tools/game-voices.py --check',
+    '   يجب أن يعرض الأصوات العربية. إن لم ينجح، أخبرني بالسبب وبالخطوة اللازمة في إعدادات البيئة، ولا تطلب مني المفتاح في المحادثة.',
+    '3. ولّد جملة تجريبية بصوت حامد في مجلد مؤقت خارج المستودع: «مَرْحَبًا يَا بَطَلُ! اسْتَعِدَّ لِلِانْطِلَاقِ.» وأرسل لي ملف MP3 لأسمعه.',
+    '4. ارفع الملفين إلى المستودع (commit و push).',
+    '',
+  ].join('\n');
+  let message = '';
+
+  const btn = $('copyMsg'), status = $('msgStatus'), area = $('msg');
+  Promise.all(FILES.map(([, url]) => fetch(url).then(r => r.ok ? r.text() : Promise.reject(new Error(url + ' ' + r.status)))))
+    .then(texts => {
+      message = INTRO + FILES.map(([name], k) =>
+        `\n===== بداية الملف ${name} =====\n${texts[k].replace(/\s+$/, '')}\n===== نهاية الملف ${name} =====\n`).join('');
+      area.value = message;
+      btn.disabled = false;
+      btn.textContent = 'انسخ رسالة التثبيت';
+      status.textContent = `${message.split('\n').length} سطرًا، فيها الأداة وتعليماتها.`;
+    })
+    .catch(() => {
+      btn.textContent = 'تعذّر تجهيز الرسالة';
+      status.textContent = 'تعذّر تحميل ملفات العُدّة. أعد فتح الصفحة.';
+    });
+
+  function selectIn(el){
+    if (el.tagName === 'TEXTAREA'){ el.focus(); el.select(); el.setSelectionRange(0, el.value.length); return; }
+    const r = document.createRange(); r.selectNodeContents(el);
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  function flash(button, text){
+    const was = button.dataset.label || (button.dataset.label = button.textContent);
+    button.textContent = text;
+    clearTimeout(button._t);
+    button._t = setTimeout(() => { button.textContent = was; }, 2200);
+  }
+  // writeText must run inside the tap; when the frame refuses it, select the text for a manual copy
+  function copy(text, button, source, onFail){
+    const fail = () => { if (onFail) onFail(); selectIn(source); flash(button, 'حدّد وانسخ'); };
+    if (!navigator.clipboard || !navigator.clipboard.writeText){ fail(); return; }
+    navigator.clipboard.writeText(text).then(() => flash(button, 'تم النسخ'), fail);
+  }
+  document.querySelectorAll('[data-copy]').forEach(b => {
+    b.addEventListener('click', () => { const el = $(b.dataset.copy); copy(el.textContent, b, el); });
+  });
+  btn.addEventListener('click', () => {
+    if (!message) return;
+    copy(message, btn, area, () => {
+      $('msgBox').open = true;
+      status.textContent = 'لم يسمح المتصفح بالنسخ التلقائي. النص محدَّد الآن في المربع أدناه، فانسخه يدويًا.';
+    });
+  });
+})();
+</script>

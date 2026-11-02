@@ -1,19 +1,19 @@
 # Spoken voices in games and programs
 
-Any spoken line in a game or program in this repo comes from Microsoft Azure neural text-to-speech,
-generated ahead of time with `tools/game-voices.py` and shipped as MP3 files next to the game. The
-owner chose Azure after comparing it with Gemini and the device's own voice in the voice lab
-(`voice-lab/`). Never call Azure from a page: the key would be visible to anyone who opens it.
+Spoken lines in games and programs here come from Microsoft Azure neural text-to-speech; the owner picked
+it after listening to it, Gemini and the device's own voice. Lines are generated ahead of time with
+`tools/game-voices.py` and shipped as MP3 files next to the game, so games work offline, cost nothing per
+player and never hold the key. Never call Azure from a page: anyone who opens it could take the key.
 
 ## Writing the lines
 
-- Put every word in full tashkeel. Azure follows the diacritics it is given and guesses the rest, and
-  in the voice lab its guesses differed from the correct reading on every line. The script warns about
-  any Arabic word with no haraka. Azure pauses on a sentence's last word by itself, so write the case
-  ending there as grammar requires («قَادِمٌ.» is read «قَادِمْ»).
-- Show the owner the vowelled lines before generating; they check the tashkeel.
-- Default voice `ar-SA-HamedNeural` (male, Saudi). Also liked: `ar-SA-ZariyahNeural` (female, Saudi).
-  `python3 tools/azure-tts.py --check` lists all 32 Arabic voices and proves the key and network work.
+- Full tashkeel on every word. Azure follows the diacritics it is given and guesses the rest, and its
+  guesses were wrong often enough to hear. The script warns about any Arabic word with no haraka. Write
+  the grammatical case ending on a sentence's last word too; Azure pauses there by itself («قَادِمٌ.» is
+  read «قَادِمْ»).
+- Show the owner the vowelled lines before generating, so they can check the tashkeel.
+- Voice: `ar-SA-HamedNeural` (male, Saudi) by default; `ar-SA-ZariyahNeural` (female, Saudi) is the other
+  one the owner liked. `python3 tools/game-voices.py --check` lists every Arabic voice.
 
 ## Generating
 
@@ -21,43 +21,56 @@ Keep the lines in a JSON file beside the game, e.g. `star-blaster-lines.json`:
 
 ```json
 {"voice": "ar-SA-HamedNeural",
- "lines": [{"id": "start", "text": "مَرْحَبًا يَا بَطَلُ!"}]}
+ "lines": [{"id": "start", "text": "مَرْحَبًا يَا بَطَلُ!"},
+           {"id": "boss",  "text": "تَحْذِيرٌ! التِّنِّينُ قَادِمٌ."}]}
 ```
 
 ```
 python3 tools/game-voices.py star-blaster-lines.json --out star-blaster/voices
 ```
 
-It writes `<id>.mp3` per line and `manifest.json`, remakes only lines whose text or voice changed, and
-levels every clip to -14.5 LUFS. Commit the lines file, the MP3s and the manifest.
+It writes `<id>.mp3` per line and `manifest.json`, and remakes only lines whose text or voice changed.
+Commit the lines file, the clips and the manifest. When a game is published as an Artifact, pass the clips
+and the manifest in `files` under the same `voices/` path the game loads them from.
 
 ## Playing them in a game
 
-The games already open a Web Audio context on the first tap (`AU.ctx`, `AU.master` in
-`nova-squadron.html`). Decode the clips into that context and play them through the master gain, which
-works on iPhone after that tap, unlike starting `new Audio()` from game events:
-
 ```js
-const VOICE = {};
-async function loadVoices(){
-  const m = await (await fetch('voices/manifest.json')).json();
-  await Promise.all(m.lines.map(async l => {
-    VOICE[l.id] = await AU.ctx.decodeAudioData(await (await fetch('voices/' + l.file)).arrayBuffer());
-  }));
-}
-function say(id){
-  const b = VOICE[id];
-  if (!b || !AU.ctx || !AU.on) return;
-  const s = AU.ctx.createBufferSource(); s.buffer = b; s.connect(AU.master); s.start();
-}
+// voices.start() inside the first tap (the Start button), then voices.say('boss') from anywhere.
+// A game with its own Web Audio context passes it and its output node: voices.start(AU.ctx, AU.master).
+const voices = {
+  ctx: null, out: null, buf: {},
+  async start(ctx, out, dir = 'voices'){
+    if (this.ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    this.ctx = ctx || (AC ? new AC() : null);
+    if (!this.ctx) return;
+    this.out = out || this.ctx.destination;
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    try {
+      const m = await (await fetch(dir + '/manifest.json')).json();
+      await Promise.all(m.lines.map(async l => {
+        this.buf[l.id] = await this.ctx.decodeAudioData(await (await fetch(dir + '/' + l.file)).arrayBuffer());
+      }));
+    } catch (e) { console.warn('voices not loaded', e); }
+  },
+  say(id){
+    const b = this.buf[id];
+    if (!b) return;
+    const s = this.ctx.createBufferSource();
+    s.buffer = b; s.connect(this.out); s.start();
+  },
+};
 ```
 
-Call `loadVoices()` right after the audio context is created. When publishing the game as an Artifact,
-pass each clip and the manifest in `files` under `voices/`.
+Web Audio unlocked by that first tap is what lets a line play later from a game event on iPhone; there,
+`new Audio(...).play()` outside a tap is blocked.
 
-## Account limits
+## Setup and limits
 
-- Key: `AZURE_SPEECH_KEY` in the cloud environment's variables. Region `qatarcentral` is the default;
-  `AZURE_SPEECH_REGION` overrides it. Network access allows `qatarcentral.tts.speech.microsoft.com`.
-- Free tier: 500,000 characters a month (about 10,000 vowelled lines) and about 20 requests a minute;
-  the script waits when rate limited. When the month's quota runs out Azure refuses until next month.
+- `AZURE_SPEECH_KEY` is an environment variable in the cloud environment (not a Network secret: Azure
+  reads the key from its own header), and `qatarcentral.tts.speech.microsoft.com` is under Allowed domains
+  in its network access. The region is qatarcentral unless `AZURE_SPEECH_REGION` says otherwise.
+- Azure's free tier: 500,000 characters a month (about 10,000 vowelled lines) and about 20 requests a
+  minute; the script waits when told to slow down. When the month's quota runs out, Azure refuses until
+  the next month and nothing is charged.
