@@ -272,6 +272,7 @@ var allies=[],boxes=[];
 var allyCharges=1,shieldCharges=1,allyT=0,shieldT=0;
 var rapidT=0,pierceT=0,boxT=6000,flashT=0,boxCoins=0;
 var ALLY_DUR=12000,SHIELD_DUR=8000,BUFF_DUR=10000,MAX_CHARGES=5,SHIELD_R=48;
+var droneT=0,droneFireT=0,DRONE_DUR=12000,DRONE_N=3;
 var abilKey='';
 
 /* ---------- save progress ---------- */
@@ -393,6 +394,17 @@ var sprABP=makeSprite(18,18,function(c,w,h){
   g.addColorStop(0,'#ffffff');g.addColorStop(0.35,'#ffb0ec');g.addColorStop(0.7,'#3ddc84');g.addColorStop(1,'rgba(61,220,132,0)');
   c.fillStyle=g;c.beginPath();c.arc(w/2,h/2,9,0,TAU);c.fill();
 });
+/* attack drones (loot box prize): their bolts and glow */
+var sprDB=makeSprite(12,12,function(c,w,h){
+  var g=c.createRadialGradient(w/2,h/2,0.5,w/2,h/2,6);
+  g.addColorStop(0,'#ffffff');g.addColorStop(0.4,'#ffe2a0');g.addColorStop(0.75,'#ffa42a');g.addColorStop(1,'rgba(255,164,42,0)');
+  c.fillStyle=g;c.beginPath();c.arc(w/2,h/2,6,0,TAU);c.fill();
+});
+var sprDGlow=makeSprite(30,30,function(c,w,h){
+  var g=c.createRadialGradient(w/2,h/2,1,w/2,h/2,15);
+  g.addColorStop(0,'rgba(255,190,80,0.85)');g.addColorStop(1,'rgba(255,150,40,0)');
+  c.fillStyle=g;c.beginPath();c.arc(w/2,h/2,15,0,TAU);c.fill();
+});
 var sprOrb=makeSprite(22,22,function(c,w,h){
   var g=c.createRadialGradient(w/2,h/2,1,w/2,h/2,10);
   g.addColorStop(0,'#ffffff');g.addColorStop(0.35,'#ff6a4a');g.addColorStop(0.75,'#e02818');g.addColorStop(1,'rgba(200,20,10,0)');
@@ -488,10 +500,28 @@ function drawAlly(c,al){
     c.restore();
   }
   drawGear(c,al.x,al.y,al.ph);
+  if(droneT>0&&al.st!==2){drawDrones(c,al.x,al.y,al.off*0.02);}
   c.save();c.translate(al.x,al.y-38);
   c.fillStyle='#5dff9a';c.globalAlpha=0.8;
   poly(c,[[0,0],[-6,-7],[6,-7]]);
   c.restore();
+}
+/* attack drones circling a ship (player or ally) */
+function dronePos(sx,sy,k,ph){
+  var a=time*0.0032+ph+k*TAU/DRONE_N;
+  return {x:sx+Math.cos(a)*58,y:sy+6+Math.sin(a)*32};
+}
+function drawDrones(c,sx,sy,ph){
+  for(var k=0;k<DRONE_N;k++){
+    var p=dronePos(sx,sy,k,ph);
+    c.save();c.translate(p.x,p.y);
+    c.drawImage(sprDGlow,-15,-15);
+    c.rotate(time*0.006+k);
+    c.fillStyle='#4a3008';poly(c,[[0,-10],[10,0],[0,10],[-10,0]]);
+    c.fillStyle='#ffb84a';poly(c,[[0,-6.5],[6.5,0],[0,6.5],[-6.5,0]]);
+    c.fillStyle='#fff3c8';c.beginPath();c.arc(0,0,2.6,0,TAU);c.fill();
+    c.restore();
+  }
 }
 /* wing drones and companions - drawn for the player and for each summoned ally */
 function drawGear(c,x,y,ph){
@@ -1267,7 +1297,7 @@ function hitBox(j,dmg,x,y){
 }
 var LOOT=[
   {k:'coin',w:26},{k:'ally',w:14},{k:'boom',w:12},{k:'pierce',w:14},
-  {k:'rapid',w:14},{k:'shield',w:12},{k:'life',w:8}
+  {k:'rapid',w:14},{k:'shield',w:12},{k:'life',w:8},{k:'drone',w:14}
 ];
 function rollLoot(){
   var tot=0,i,r;
@@ -1302,6 +1332,9 @@ function openBox(bx){
   }else if(k==='rapid'){
     rapidT=Math.min(20000,Math.max(0,rapidT)+BUFF_DUR);
     bigPop(x,y,'RAPID FIRE!','#4ff2e8');sfxPower();
+  }else if(k==='drone'){
+    droneT=Math.min(DRONE_DUR*2,Math.max(0,droneT)+DRONE_DUR);
+    bigPop(x,y,'ATTACK DRONES!','#ffb84a');sfxPower();
   }else if(k==='shield'){
     if(shieldT>0){shieldT+=SHIELD_DUR*0.6;bigPop(x,y,'SHIELD BOOST','#5ad6ff');sfxShield();}
     else if(shieldCharges<MAX_CHARGES){shieldCharges++;bigPop(x,y,'SHIELD +1','#5ad6ff');sfxPower();}
@@ -1386,6 +1419,15 @@ function allyWeapons(al,dt){
       if(items.c1){lbolts.push({x:gx-46,y:gy+4,p:cp,d:cd,s:player.weapon});}
       if(items.c2){lbolts.push({x:gx+46,y:gy+4,p:cp,d:cd,s:player.weapon});}
     }
+  }
+}
+/* each attack drone shoots the nearest target (allies' drones too) */
+function fireDrones(sx,sy,ph){
+  var pc=pierceT>0?1:0;
+  for(var k=0;k<DRONE_N;k++){
+    var p=dronePos(sx,sy,k,ph),tg=allyTarget(p);
+    var a=tg?Math.atan2(tg.y-p.y,tg.x-p.x):-Math.PI/2;
+    bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*14,vy:Math.sin(a)*14,pc:pc,dn:1});
   }
 }
 function allyTarget(al){
@@ -1636,8 +1678,8 @@ function update(dt){
   if(player.alive&&levelClearTimer<=0&&!(boss&&boss.dying)){
     boxT-=dt;
     if(boxT<=0){
-      boxT=rnd(10000,16000)*(boss?1.3:1);
-      if(boxes.length<2){spawnBox();}
+      boxT=rnd(10000,16000)/1.5*(boss?1.3:1); /* 1.5x as often as before */
+      if(boxes.length<3){spawnBox();}
     }
   }
   for(i=boxes.length-1;i>=0;i--){
@@ -1680,6 +1722,20 @@ function update(dt){
   }
   for(i=allies.length-1;i>=0;i--){
     if(allies[i]&&allies[i].st!==2&&player.alive){allyWeapons(allies[i],dt);}
+  }
+
+  /* attack drones (loot box prize) */
+  if(droneT>0){
+    droneT-=dt;
+    if(droneT<=0||!player.alive){droneT=0;}
+    else if(enemies.length>0||boss||boxes.length>0){
+      droneFireT-=dt;
+      if(droneFireT<=0){
+        droneFireT=rapidT>0?190:330;
+        fireDrones(player.x,player.y,0);
+        for(i=0;i<allies.length;i++){if(allies[i].st!==2){fireDrones(allies[i].x,allies[i].y,allies[i].off*0.02);}}
+      }
+    }
   }
 
   /* hazard nuke missiles */
@@ -2383,7 +2439,8 @@ function render(){
   for(i=0;i<bullets.length;i++){
     var bu=bullets[i];
     if(bu.a){ctx.drawImage(bu.pc?sprABP:sprAB,bu.x-(bu.pc?9:7),bu.y-(bu.pc?9:7));
-    }else if(bu.pc){ctx.drawImage(sprPBP,bu.x-7,bu.y-20);}
+    }else if(bu.dn){ctx.drawImage(sprDB,bu.x-6,bu.y-6);}
+    else if(bu.pc){ctx.drawImage(sprPBP,bu.x-7,bu.y-20);}
     else{ctx.drawImage(sprB,bu.x-6,bu.y-15);}
   }
   ctx.lineCap='butt';
@@ -2423,6 +2480,7 @@ function render(){
   if(player.alive){
     drawPlayer(ctx);
     drawGear(ctx,player.x,player.y,0);
+    if(droneT>0){drawDrones(ctx,player.x,player.y,0);}
     if(shieldT>0){drawShield(ctx);}
   }
   for(i=0;i<ebullets.length;i++){
@@ -2532,7 +2590,7 @@ function drawHUD(){
   /* active boosts (bottom-left, stacked upward) */
   var byy=H-58;
   c.textAlign='left';c.font='800 12px Orbitron,Arial';
-  var buffs=[[shieldT,'SHIELD','#5ad6ff'],[allyT,'ALLIES','#5dff9a'],[rapidT,'RAPID FIRE','#4ff2e8'],[pierceT,'SHARP SHOTS','#ff5ad6']];
+  var buffs=[[shieldT,'SHIELD','#5ad6ff'],[allyT,'ALLIES','#5dff9a'],[rapidT,'RAPID FIRE','#4ff2e8'],[pierceT,'SHARP SHOTS','#ff5ad6'],[droneT,'DRONES','#ffb84a']];
   for(i=0;i<buffs.length;i++){
     if(buffs[i][0]>0){
       c.fillStyle=buffs[i][2];c.shadowColor=buffs[i][2];c.shadowBlur=8;
@@ -2607,7 +2665,7 @@ function startLevel(n){
   superCharge=0;superT=0;rocketT=600;megaOn=false;
   allies.length=0;boxes.length=0;
   allyCharges=1;shieldCharges=1;allyT=0;shieldT=0;
-  rapidT=0;pierceT=0;flashT=0;boxCoins=0;boxT=rnd(5000,8000);
+  rapidT=0;pierceT=0;flashT=0;boxCoins=0;boxT=rnd(5000,8000)/1.5;droneT=0;droneFireT=0;
   boss=null;bossWarn=0;bossPending=false;
   levelClearTimer=0;gameOverTimer=0;waveGap=0;
   diveT=3200;hazardT=rnd(8000,13000);fireTimer=0;shake=0;waveLabel=0;
