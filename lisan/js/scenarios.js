@@ -1,7 +1,22 @@
 /* ==========================================================================
    Lisan · scenarios.js — conversation content
    --------------------------------------------------------------------------
-   Pure data. Each scenario is a short, realistic role-play.
+   Pure data. Each scenario is a short, realistic role-play, and belongs to
+   one learning path (PATHS below), which orders units from easier to harder.
+   More role-plays live in js/content-*.js and register with addScenarios().
+   Check everything with:  node tools/check-content.mjs
+
+   scenario fields
+     id, category (= path id), level, minutes, icon, tint, title, titleAr,
+     place, persona {name, role, roleAr, gender}
+     goal      "I can…" statement                     {en, ar}
+     mission   what to achieve in this conversation  {en, ar}
+     vocab     6 key words / phrases                 [{en, ar}]
+     tip       one cultural or language note         {en, ar}
+     register  'polite' → coach suggests politer phrasing
+     style     'exam' → AI acts as a neutral examiner (live mode)
+     turns     the scripted conversation (guided mode) / story beats (live)
+     outro     closing line                          {en, ar}
 
    turn fields
      ai        what the character says              {en, ar}
@@ -21,12 +36,6 @@
    ========================================================================== */
 (function (root) {
   'use strict';
-
-  const CATEGORIES = [
-    { id: 'travel', en: 'Travel', ar: 'السفر' },
-    { id: 'daily', en: 'Daily life', ar: 'الحياة اليومية' },
-    { id: 'work', en: 'Work', ar: 'العمل' }
-  ];
 
   /* Lines the coach and characters may say in any scenario. */
   const COMMON = {
@@ -567,22 +576,164 @@
     }
   ];
 
-  /* Free-conversation topics for the AI partner. `angle` steers the opening. */
-  const TOPICS = [
-    { id: 'day', en: 'Your day', ar: 'يومك', icon: 'sun', angle: 'Ask how their day is going and what they did, then follow whatever they mention.' },
-    { id: 'sea', en: 'The sea & the beach', ar: 'البحر والشاطئ', icon: 'waves', angle: 'Talk about trips to the sea or the beach: what they saw, did and felt. Sea life, boats, diving and fishing are all welcome.' },
-    { id: 'weekend', en: 'Weekend plans', ar: 'نهاية الأسبوع', icon: 'calendar', angle: 'Ask about their last weekend or their plans for the next one.' },
-    { id: 'travel', en: 'Travel stories', ar: 'قصص السفر', icon: 'plane', angle: 'Ask about a memorable trip, or a place they dream of visiting.' },
-    { id: 'food', en: 'Food you love', ar: 'أكلاتك المفضلة', icon: 'utensils', angle: 'Talk about favourite dishes, cooking at home and restaurants.' },
-    { id: 'work', en: 'Work & study', ar: 'العمل والدراسة', icon: 'briefcase', angle: 'Ask what they do or study, what a normal day looks like, and what they enjoy or find hard.' },
-    { id: 'family', en: 'Family & friends', ar: 'العائلة والأصدقاء', icon: 'heart', angle: 'Talk about the people close to them and what they do together. Be warm and respectful.' },
-    { id: 'sports', en: 'Sports', ar: 'الرياضة', icon: 'ball', angle: 'Talk about sports they play or watch, favourite teams and big matches.' },
-    { id: 'movies', en: 'Movies & series', ar: 'الأفلام والمسلسلات', icon: 'film', angle: 'Talk about films and series they like, and why.' },
-    { id: 'city', en: 'Your city', ar: 'مدينتك', icon: 'building', angle: 'Ask about their city: favourite places, the weather, what visitors should see.' },
-    { id: 'tech', en: 'Phones & tech', ar: 'الهواتف والتقنية', icon: 'phone', angle: 'Talk about apps, gadgets and how technology fits into their life.' },
-    { id: 'goals', en: 'Dreams & goals', ar: 'أحلامك وأهدافك', icon: 'flag', angle: 'Talk about their goals for this year and their bigger dreams, including why they are learning English.' }
+  /* ------------------------------------------------------------------ *
+   * Goals, key words and cultural notes for the original ten role-plays
+   * ------------------------------------------------------------------ */
+  const EXTRAS = {
+    checkin: {
+      goal: { en: 'I can check in for a flight, drop a bag and choose a seat.', ar: 'أستطيع تسجيل الوصول للرحلة وتسليم الحقيبة واختيار المقعد.' },
+      vocab: [{ en: 'boarding pass', ar: 'بطاقة صعود' }, { en: 'check in a bag', ar: 'يشحن حقيبة' }, { en: 'window seat', ar: 'مقعد بجانب النافذة' },
+        { en: 'aisle seat', ar: 'مقعد بجانب الممر' }, { en: 'gate', ar: 'بوابة' }, { en: 'boarding', ar: 'الصعود إلى الطائرة' }],
+      tip: { en: 'Say "aisle" like "I\'ll": the s is silent.', ar: 'تُنطق aisle مثل I\'ll، وحرف s صامت.' }
+    },
+    plane: {
+      goal: { en: 'I can talk to cabin crew and order a drink and a meal.', ar: 'أستطيع التحدث مع طاقم الطائرة وطلب مشروب ووجبة.' },
+      vocab: [{ en: 'overhead locker', ar: 'الخزانة العلوية' }, { en: 'take-off', ar: 'الإقلاع' }, { en: 'blanket', ar: 'بطانية' },
+        { en: "I'd like…", ar: 'أودّ…' }, { en: 'Could I have…?', ar: 'هل يمكنني الحصول على…؟' }, { en: 'turbulence', ar: 'مطبات هوائية' }],
+      tip: { en: 'On a plane, "Could I have…, please?" is the most natural way to ask for anything.', ar: 'على الطائرة، عبارة Could I have…, please? هي الطريقة الأكثر طبيعية لطلب أي شيء.' }
+    },
+    immigration: {
+      goal: { en: 'I can answer border questions clearly and confidently.', ar: 'أستطيع الإجابة عن أسئلة الجوازات بوضوح وثقة.' },
+      vocab: [{ en: 'purpose of your visit', ar: 'غرض الزيارة' }, { en: 'on vacation', ar: 'في إجازة' }, { en: 'staying at', ar: 'مقيم في' },
+        { en: 'return ticket', ar: 'تذكرة عودة' }, { en: 'for two weeks', ar: 'لمدة أسبوعين' }, { en: 'business trip', ar: 'رحلة عمل' }],
+      tip: { en: 'At passport control, short and clear answers are best. Answer the question you were asked.', ar: 'في الجوازات، الإجابات القصيرة والواضحة هي الأفضل. أجب عن السؤال المطروح فقط.' }
+    },
+    hotel: {
+      goal: { en: 'I can check in to a hotel and ask about its services.', ar: 'أستطيع تسجيل الدخول في الفندق والسؤال عن خدماته.' },
+      vocab: [{ en: 'reservation', ar: 'حجز' }, { en: 'double room', ar: 'غرفة مزدوجة' }, { en: 'check-out', ar: 'موعد المغادرة' },
+        { en: 'late check-out', ar: 'تأخير المغادرة' }, { en: 'breakfast included', ar: 'شامل الإفطار' }, { en: 'key card', ar: 'بطاقة المفتاح' }],
+      tip: { en: '"I have a reservation under the name…" is the standard way to start a hotel check-in.', ar: 'عبارة I have a reservation under the name… هي البداية المعتادة لتسجيل الدخول في الفندق.' }
+    },
+    taxi: {
+      goal: { en: 'I can tell a driver where to go, chat a little and pay.', ar: 'أستطيع إخبار السائق بوجهتي والدردشة قليلاً والدفع.' },
+      vocab: [{ en: 'Where to?', ar: 'إلى أين؟' }, { en: 'highway', ar: 'طريق سريع' }, { en: 'toll', ar: 'رسوم الطريق' },
+        { en: 'keep the change', ar: 'احتفظ بالباقي' }, { en: 'receipt', ar: 'إيصال' }, { en: 'pull over', ar: 'توقّف جانباً' }],
+      tip: { en: '"Keep the change" means the driver can keep the extra money as a tip.', ar: 'عبارة Keep the change تعني أن السائق يحتفظ بالباقي كإكرامية.' }
+    },
+    cafe: {
+      goal: { en: 'I can order food and drink politely and pay.', ar: 'أستطيع طلب الطعام والشراب بأدب والدفع.' },
+      vocab: [{ en: 'for here / to go', ar: 'هنا / سفري' }, { en: 'oat milk', ar: 'حليب الشوفان' }, { en: 'large', ar: 'كبير' },
+        { en: "I'll have…", ar: 'سآخذ…' }, { en: 'pay by card', ar: 'الدفع بالبطاقة' }, { en: 'receipt', ar: 'إيصال' }],
+      tip: { en: '"Could I have…?" sounds friendlier than "I want…" when you order.', ar: 'عبارة Could I have…? ألطف من I want… عند الطلب.' }
+    },
+    pharmacy: {
+      category: 'health',
+      goal: { en: 'I can describe how I feel and ask how to take medicine.', ar: 'أستطيع وصف ما أشعر به والسؤال عن طريقة أخذ الدواء.' },
+      vocab: [{ en: 'sore throat', ar: 'التهاب الحلق' }, { en: 'headache', ar: 'صداع' }, { en: 'symptoms', ar: 'أعراض' },
+        { en: 'allergic to', ar: 'لديه حساسية من' }, { en: 'tablets', ar: 'أقراص' }, { en: 'every six hours', ar: 'كل ست ساعات' }],
+      tip: { en: 'Say "I have a headache", not "I have headache". Most common illnesses take "a".', ar: 'قل I have a headache وليس I have headache. معظم الأمراض الشائعة تأتي معها a.' }
+    },
+    shop: {
+      goal: { en: 'I can return an item, explain the problem and exchange it.', ar: 'أستطيع إرجاع منتج وشرح المشكلة واستبداله.' },
+      vocab: [{ en: 'return', ar: 'يُرجع' }, { en: 'refund', ar: 'استرداد المبلغ' }, { en: 'exchange', ar: 'يستبدل' },
+        { en: 'receipt', ar: 'إيصال' }, { en: 'too small', ar: 'صغير جداً (أكثر من اللازم)' }, { en: 'fitting room', ar: 'غرفة القياس' }],
+      tip: { en: '"Too small" means the size is a problem; "very small" is only a description.', ar: 'too small تعني أن المقاس مشكلة، أما very small فهي مجرد وصف.' }
+    },
+    colleague: {
+      goal: { en: 'I can introduce myself at work and talk about my background.', ar: 'أستطيع التعريف بنفسي في العمل والحديث عن خلفيتي.' },
+      vocab: [{ en: 'joining the team', ar: 'ينضم إلى الفريق' }, { en: 'I worked at', ar: 'عملت في' }, { en: 'for three years', ar: 'لمدة ثلاث سنوات' },
+        { en: 'commute', ar: 'التنقل إلى العمل' }, { en: 'usually', ar: 'عادةً' }, { en: 'count me in', ar: 'احسبني معكم' }],
+      tip: { en: 'Repeat a new colleague\'s name: "Nice to meet you, Rachel." It sounds warm and helps you remember it.', ar: 'كرّر اسم زميلك الجديد: Nice to meet you, Rachel. يبدو ذلك ودوداً ويساعدك على التذكّر.' }
+    },
+    interview: {
+      goal: { en: 'I can talk about my experience and strengths in full, confident sentences.', ar: 'أستطيع الحديث عن خبرتي ونقاط قوتي بجمل كاملة وواثقة.' },
+      vocab: [{ en: 'experience', ar: 'خبرة' }, { en: 'strength', ar: 'نقطة قوة' }, { en: 'deadline', ar: 'موعد نهائي' },
+        { en: 'handled', ar: 'تعامل مع' }, { en: 'under pressure', ar: 'تحت الضغط' }, { en: 'a typical day', ar: 'يوم معتاد' }],
+      tip: { en: 'Answer with a short story: the situation, what you did, and the result.', ar: 'أجب بقصة قصيرة: الموقف، وما فعلته، والنتيجة.' }
+    }
+  };
+  SCENARIOS.forEach(function (s) { if (EXTRAS[s.id]) Object.assign(s, EXTRAS[s.id]); });
+
+  /* ------------------------------------------------------------------ *
+   * Learning paths: a deliberate curriculum. Each path's units run from
+   * easier to harder; content files add the remaining units by id.
+   * ------------------------------------------------------------------ */
+  const PATHS = [
+    { id: 'travel', en: 'Travel', ar: 'السفر', icon: 'plane', tint: '#3B6FE0',
+      goal: { en: 'Handle every step of a trip abroad.', ar: 'تعامل مع كل مراحل رحلتك إلى الخارج.' },
+      units: ['checkin', 'plane', 'taxi', 'directions', 'immigration', 'hotel', 'luggage', 'hotel-problem', 'rebooking'] },
+    { id: 'daily', en: 'Daily life', ar: 'الحياة اليومية', icon: 'cart', tint: '#3F8A4F',
+      goal: { en: 'Get things done around town, in person and on the phone.', ar: 'أنجز أمورك اليومية وجهاً لوجه وعلى الهاتف.' },
+      units: ['cafe', 'supermarket', 'restaurant', 'shop', 'phone-booking', 'delivery'] },
+    { id: 'health', en: 'Health', ar: 'الصحة', icon: 'stethoscope', tint: '#1F9D6B',
+      goal: { en: 'Explain how you feel and understand medical advice.', ar: 'اشرح ما تشعر به وافهم النصائح الطبية.' },
+      units: ['pharmacy', 'doctor', 'dentist', 'emergency'] },
+    { id: 'work', en: 'Work', ar: 'العمل', icon: 'briefcase', tint: '#4E5BC8',
+      goal: { en: 'Communicate with confidence at work, from small talk to negotiation.', ar: 'تواصل بثقة في العمل، من الدردشة إلى التفاوض.' },
+      units: ['colleague', 'smalltalk', 'standup', 'time-off', 'interview', 'client-call', 'negotiation'] },
+    { id: 'study', en: 'Study & exams', ar: 'الدراسة والاختبارات', icon: 'cap', tint: '#6B4FC8',
+      goal: { en: 'Study abroad and get ready for the IELTS speaking test.', ar: 'ادرس في الخارج واستعد لاختبار المحادثة في آيلتس.' },
+      units: ['admissions', 'professor', 'ielts-1', 'ielts-2', 'ielts-3'] },
+    { id: 'social', en: 'Friends & culture', ar: 'الأصدقاء والثقافة', icon: 'users', tint: '#C2602F',
+      goal: { en: 'Make friends, make plans and share your culture.', ar: 'كوّن صداقات، ورتّب خططاً، وشارك ثقافتك.' },
+      units: ['neighbour', 'weekend-plans', 'hosting', 'ramadan', 'dinner-party'] }
   ];
 
-  root.LisanContent = { CATEGORIES: CATEGORIES, SCENARIOS: SCENARIOS, COMMON: COMMON, TOPICS: TOPICS };
+  /* Free-conversation topics, grouped. `angle` steers the AI's opening;
+     `level` marks topics that suit stronger speakers. */
+  const TOPIC_CATS = [
+    { id: 'everyday', en: 'Everyday', ar: 'يومياتك' },
+    { id: 'stories', en: 'Tell a story', ar: 'احكِ قصة' },
+    { id: 'culture', en: 'Your culture', ar: 'ثقافتك' },
+    { id: 'interests', en: 'Interests', ar: 'اهتماماتك' },
+    { id: 'work', en: 'Work & study', ar: 'العمل والدراسة' },
+    { id: 'ideas', en: 'Ideas & opinions', ar: 'أفكار وآراء' }
+  ];
+  const TOPICS = [
+    // Everyday
+    { id: 'day', cat: 'everyday', en: 'Your day', ar: 'يومك', icon: 'sun', angle: 'Ask how their day is going and what they did, then follow whatever they mention.' },
+    { id: 'weekend', cat: 'everyday', en: 'Weekend plans', ar: 'نهاية الأسبوع', icon: 'calendar', angle: 'Ask about their last weekend or their plans for the next one.' },
+    { id: 'food', cat: 'everyday', en: 'Food you love', ar: 'أكلاتك المفضلة', icon: 'utensils', angle: 'Talk about favourite dishes, cooking at home and restaurants.' },
+    { id: 'city', cat: 'everyday', en: 'Your city', ar: 'مدينتك', icon: 'building', angle: 'Ask about their city: favourite places, the weather, what visitors should see.' },
+    { id: 'home', cat: 'everyday', en: 'Your home', ar: 'بيتك', icon: 'home', angle: 'Ask them to describe their home and their favourite room, and who they live with.' },
+    { id: 'shopping', cat: 'everyday', en: 'Shopping', ar: 'التسوّق', icon: 'bag', angle: 'Talk about how they shop: malls or online, a recent purchase, a great or bad buy.' },
+    { id: 'weather', cat: 'everyday', en: 'Weather & seasons', ar: 'الطقس والفصول', icon: 'cloud', angle: 'Talk about the weather where they live, their favourite season and what they do in it.' },
+    // Stories
+    { id: 'sea', cat: 'stories', en: 'The sea & the beach', ar: 'البحر والشاطئ', icon: 'waves', angle: 'Talk about trips to the sea or the beach: what they saw, did and felt. Sea life, boats, diving and fishing are all welcome.' },
+    { id: 'trip', cat: 'stories', en: 'A memorable trip', ar: 'رحلة لا تُنسى', icon: 'plane', angle: 'Ask them to tell the story of a trip they will never forget: where, who with, what happened.' },
+    { id: 'funny', cat: 'stories', en: 'A funny moment', ar: 'موقف مضحك', icon: 'smile', angle: 'Ask for a funny or embarrassing thing that happened to them, and enjoy the story with them.' },
+    { id: 'lost', cat: 'stories', en: 'A time you got lost', ar: 'مرة ضعت فيها', icon: 'map', angle: 'Ask about a time they got lost or something went wrong on the way, and how they solved it.' },
+    { id: 'bestday', cat: 'stories', en: 'Your best day ever', ar: 'أجمل يوم في حياتك', icon: 'star', angle: 'Ask about one of the best days of their life, and help them describe it in detail.' },
+    { id: 'challenge', cat: 'stories', en: 'A challenge you overcame', ar: 'تحدٍّ تغلّبت عليه', icon: 'target', level: 'Intermediate', angle: 'Ask about a difficult time or challenge they overcame and what they learned from it.' },
+    // Culture
+    { id: 'coffee', cat: 'culture', en: 'Arabic coffee & hospitality', ar: 'القهوة العربية والضيافة', icon: 'coffee', angle: 'Be curious about Arabic coffee, dates and hospitality in their home. Let them teach you.' },
+    { id: 'ramadan', cat: 'culture', en: 'Ramadan & Eid', ar: 'رمضان والعيد', icon: 'moon', angle: 'Ask respectfully how they spend Ramadan and Eid, and their favourite traditions.' },
+    { id: 'weddings', cat: 'culture', en: 'Weddings & celebrations', ar: 'الأعراس والمناسبات', icon: 'gift', angle: 'Ask how weddings and big celebrations work in their family: the food, the music, the guests.' },
+    { id: 'desert', cat: 'culture', en: 'The desert & camping', ar: 'البر والتخييم', icon: 'tent', angle: 'Talk about trips to the desert, camping in winter, bonfires and stars.' },
+    { id: 'dishes', cat: 'culture', en: 'Traditional dishes', ar: 'الأطباق الشعبية', icon: 'utensils', angle: 'Ask them to describe traditional dishes like kabsa or jareesh, and how they are made.' },
+    { id: 'changes', cat: 'culture', en: 'How your country is changing', ar: 'كيف تتغيّر بلادك', icon: 'globe', level: 'Intermediate', angle: 'Talk about how life in their country has changed in recent years: entertainment, tourism, work.' },
+    // Interests
+    { id: 'sports', cat: 'interests', en: 'Sports', ar: 'الرياضة', icon: 'ball', angle: 'Talk about sports they play or watch, favourite teams and big matches.' },
+    { id: 'movies', cat: 'interests', en: 'Movies & series', ar: 'الأفلام والمسلسلات', icon: 'film', angle: 'Talk about films and series they like, and why.' },
+    { id: 'cars', cat: 'interests', en: 'Cars', ar: 'السيارات', icon: 'car', angle: 'Talk about cars: their own, their dream car, road trips and driving.' },
+    { id: 'gaming', cat: 'interests', en: 'Gaming', ar: 'الألعاب الإلكترونية', icon: 'gamepad', angle: 'Talk about video games they play, who they play with, and what makes a game great.' },
+    { id: 'reading', cat: 'interests', en: 'Books & reading', ar: 'الكتب والقراءة', icon: 'book', angle: 'Talk about books, stories or podcasts they enjoy and what they are reading now.' },
+    { id: 'fitness', cat: 'interests', en: 'Fitness & health', ar: 'اللياقة والصحة', icon: 'heart', angle: 'Talk about how they stay healthy: the gym, walking, food habits, sleep.' },
+    { id: 'photo', cat: 'interests', en: 'Photography', ar: 'التصوير', icon: 'camera', angle: 'Talk about photos they like to take and a favourite photo on their phone.' },
+    { id: 'music', cat: 'interests', en: 'Music', ar: 'الموسيقى والأناشيد', icon: 'music', angle: 'Talk about music or nasheeds they enjoy and when they listen.' },
+    { id: 'tech', cat: 'interests', en: 'Phones & tech', ar: 'الهواتف والتقنية', icon: 'phone', angle: 'Talk about apps, gadgets and how technology fits into their life.' },
+    // Work & study
+    { id: 'work', cat: 'work', en: 'Your work or studies', ar: 'عملك أو دراستك', icon: 'briefcase', angle: 'Ask what they do or study, what a normal day looks like, and what they enjoy or find hard.' },
+    { id: 'dreamjob', cat: 'work', en: 'Your dream job', ar: 'وظيفة أحلامك', icon: 'target', angle: 'Ask about their dream job and what they would need to get there.' },
+    { id: 'english', cat: 'work', en: 'Learning English', ar: 'تعلّم الإنجليزية', icon: 'chat', angle: 'Talk about why they are learning English, what is hard for them, and moments they felt proud.' },
+    { id: 'abroad', cat: 'work', en: 'Studying abroad', ar: 'الدراسة في الخارج', icon: 'cap', level: 'Intermediate', angle: 'Talk about studying abroad: where they would go or went, what they expect or experienced.' },
+    // Ideas & opinions
+    { id: 'social', cat: 'ideas', en: 'Social media', ar: 'وسائل التواصل', icon: 'phone', level: 'Advanced', angle: 'Discuss social media: what it adds to life, what it takes away. Ask for their opinion and reasons, and push back gently.' },
+    { id: 'ai', cat: 'ideas', en: 'AI & the future', ar: 'الذكاء الاصطناعي والمستقبل', icon: 'cpu', level: 'Advanced', angle: 'Discuss how AI might change work and daily life. Ask for opinions, examples and predictions.' },
+    { id: 'remote', cat: 'ideas', en: 'Working from home', ar: 'العمل من المنزل', icon: 'laptop', level: 'Advanced', angle: 'Discuss working from home versus the office: pros, cons, and what they prefer and why.' },
+    { id: 'citylife', cat: 'ideas', en: 'City or countryside?', ar: 'المدينة أم الريف؟', icon: 'building', level: 'Intermediate', angle: 'Discuss whether life is better in a big city or a small town, with reasons and examples.' },
+    { id: 'money', cat: 'ideas', en: 'Money & saving', ar: 'المال والادخار', icon: 'wallet', level: 'Intermediate', angle: 'Talk about saving, spending and money habits, and advice they would give a younger person.' },
+    { id: 'tourism', cat: 'ideas', en: 'Tourism: good or bad?', ar: 'السياحة: نفع أم ضرر؟', icon: 'globe', level: 'Advanced', angle: 'Discuss the benefits and costs of tourism for a country and its people.' }
+  ];
+
+  /** Content files call this to add more role-plays. */
+  function addScenarios(list) {
+    list.forEach(function (s) { if (!SCENARIOS.some(function (x) { return x.id === s.id; })) SCENARIOS.push(s); });
+  }
+
+  root.LisanContent = {
+    CATEGORIES: PATHS, PATHS: PATHS, SCENARIOS: SCENARIOS, COMMON: COMMON,
+    TOPICS: TOPICS, TOPIC_CATS: TOPIC_CATS, addScenarios: addScenarios
+  };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.LisanContent;
 })(typeof window !== 'undefined' ? window : globalThis);

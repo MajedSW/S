@@ -10,7 +10,6 @@
   const S = window.LisanSfx;
   const CONTENT = window.LisanContent;
   const SCENARIOS = CONTENT.SCENARIOS;
-  const CATEGORIES = CONTENT.CATEGORIES;
   const COMMON = CONTENT.COMMON;
 
   /* ------------------------------------------------------------------ *
@@ -79,7 +78,29 @@
     building: '<path d="M3.5 21.5h17M5.5 21.5v-17a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v17M14.5 9.5h3a1 1 0 0 1 1 1v11"/><path d="M8.5 7.5h3M8.5 11h3M8.5 14.5h3"/>',
     phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
     flag: '<path d="M5 21.5v-18"/><path d="M5 4h12.5l-2.2 4.2 2.2 4.3H5"/>',
-    chat: '<path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.1A8.5 8.5 0 1 1 21 12z"/>'
+    chat: '<path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.1A8.5 8.5 0 1 1 21 12z"/>',
+    map: '<path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/>',
+    suitcase: '<rect x="3.5" y="7" width="17" height="13" rx="2.5"/><path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2M8 7v13M16 7v13"/>',
+    cart: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2.5 3.5h3l2.4 11.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.2L21 7.5H6.4"/>',
+    box: '<path d="m21 7.5-9-5-9 5v9l9 5 9-5z"/><path d="m3 7.5 9 5 9-5M12 12.5v9"/>',
+    stethoscope: '<path d="M5 3.5v5a5 5 0 0 0 10 0v-5"/><path d="M10 13.5v2a5 5 0 0 0 10 0V13"/><circle cx="20" cy="11" r="2"/><path d="M4 3.5h2M14 3.5h2"/>',
+    tooth: '<path d="M12 5.5C10.5 4 8.8 3.5 7 3.5 4.5 3.5 3 5.5 3 8c0 3 1.5 4.5 2 7.5.4 2.6 1 5 2.5 5s2-2.5 2.5-4.5c.4-1.4.9-2 2-2s1.6.6 2 2c.5 2 1 4.5 2.5 4.5s2.1-2.4 2.5-5c.5-3 2-4.5 2-7.5 0-2.5-1.5-4.5-4-4.5-1.8 0-3.5.5-5 2z"/>',
+    siren: '<path d="M7 18v-6a5 5 0 0 1 10 0v6"/><path d="M4.5 21.5h15v-2a1.5 1.5 0 0 0-1.5-1.5H6a1.5 1.5 0 0 0-1.5 1.5zM12 2.5v2M20.5 6.5 19 8M3.5 6.5 5 8"/>',
+    handshake: '<path d="m11 17 2 2a1.4 1.4 0 0 0 2-2"/><path d="m14 14 2.5 2.5a1.4 1.4 0 0 0 2-2l-3.9-3.9a2.1 2.1 0 0 0-3 0l-.9.9a1.4 1.4 0 0 1-2-2l2.8-2.8a5.2 5.2 0 0 1 6.4-.7l.5.3a3 3 0 0 0 2.1.4L21 6.5"/><path d="m21 3.5 1 9h-2M3 3.5l-1 9 6.5 6.5a1.4 1.4 0 0 0 2-2M3 4.5h8"/>',
+    cap: '<path d="M22 9.5 12 4.5 2 9.5l10 5z"/><path d="M6 11.5v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5M22 9.5v6"/>',
+    pen: '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7.5 18.5l-4 1 1-4z"/>',
+    moon: '<path d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/>',
+    tent: '<path d="M3.5 20.5 12 4l8.5 16.5zM9.5 20.5 12 15l2.5 5.5M2 20.5h20"/>',
+    gift: '<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M12 8v13.5M19 12v7.5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V12"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+    gamepad: '<rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3M15.5 12h.01M18 13.5h.01"/>',
+    music: '<path d="M9 18.5V5.5l11-2v13"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/>',
+    camera: '<path d="M3.5 8.5a2 2 0 0 1 2-2h2l1.5-2.5h6l1.5 2.5h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/>',
+    wallet: '<path d="M19.5 7.5v-2a2 2 0 0 0-2-2h-12a2 2 0 0 0 0 4h14a1.5 1.5 0 0 1 1.5 1.5v3h-4a2 2 0 0 0 0 4h4v3a1.5 1.5 0 0 1-1.5 1.5h-14a2 2 0 0 1-2-2v-13"/>',
+    globe: '<circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5a14.5 14.5 0 0 1 0 19M12 2.5a14.5 14.5 0 0 0 0 19"/>',
+    cloud: '<path d="M17.5 19.5H8a5.5 5.5 0 1 1 1.6-10.8A6.5 6.5 0 0 1 21.5 12a4 4 0 0 1-4 7.5z"/>',
+    smile: '<circle cx="12" cy="12" r="9.5"/><path d="M8 14.5s1.5 2 4 2 4-2 4-2M9 9.5h.01M15 9.5h.01"/>',
+    cpu: '<rect x="5.5" y="5.5" width="13" height="13" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9.5 2.5v3M14.5 2.5v3M9.5 18.5v3M14.5 18.5v3M2.5 9.5h3M2.5 14.5h3M18.5 9.5h3M18.5 14.5h3"/>',
+    laptop: '<rect x="4" y="4.5" width="16" height="11" rx="1.5"/><path d="M2 19.5h20"/>'
   };
   function icon(n, cls) { return '<svg class="ic ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '') + '</svg>'; }
 
@@ -147,6 +168,7 @@
           Object.assign(d.progress.totals, raw.progress.totals || {});
         }
         if (Array.isArray(raw.phrases)) d.phrases = raw.phrases;
+        if (raw.progress && raw.progress.lastPath) d.progress.lastPath = raw.progress.lastPath;
       }
       this.data = d;
     },
@@ -255,24 +277,46 @@
   };
 
   const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
+  const PATHS = CONTENT.PATHS || [];
+  function scenarioById(id) { return SCENARIOS.find(function (s) { return s.id === id; }); }
+  function pathOf(id) { return PATHS.find(function (p) { return p.units.indexOf(id) > -1; }) || null; }
+  function pathProgress(p) {
+    const rec = Store.data.progress.scenarios;
+    return { done: p.units.filter(function (u) { return rec[u]; }).length, total: p.units.length };
+  }
+  /** Every unit in curriculum order (path by path, easy to hard). */
+  function orderedUnits() {
+    const out = [];
+    PATHS.forEach(function (p) { p.units.forEach(function (u) { const s = scenarioById(u); if (s) out.push(s); }); });
+    SCENARIOS.forEach(function (s) { if (out.indexOf(s) < 0) out.push(s); });
+    return out;
+  }
+  /** The next role-play to suggest: unfinished, at the learner's level, in
+   *  the path they used last if possible. */
   function recommended() {
     const p = Store.data.progress.scenarios;
     const lvl = settings().level;
-    const fresh = SCENARIOS.filter(function (s) { return !p[s.id]; });
-    return fresh.find(function (s) { return s.level === lvl; }) ||
+    const all = orderedUnits();
+    const fresh = all.filter(function (s) { return !p[s.id]; });
+    const last = Store.data.progress.lastPath;
+    return (last && fresh.find(function (s) { return s.category === last && LEVELS.indexOf(s.level) <= LEVELS.indexOf(lvl); })) ||
+      fresh.find(function (s) { return s.level === lvl; }) ||
       fresh.find(function (s) { return LEVELS.indexOf(s.level) <= LEVELS.indexOf(lvl) + 1; }) ||
       fresh[0] ||
-      SCENARIOS.slice().sort(function (a, b) { return (p[a.id].best || 0) - (p[b.id].best || 0); })[0];
+      all.slice().sort(function (a, b) { return (p[a.id].best || 0) - (p[b.id].best || 0); })[0];
   }
-  function scenarioById(id) { return SCENARIOS.find(function (s) { return s.id === id; }); }
+  /** The unit after this one in its path (skipping finished ones). */
   function nextScenario(id) {
-    const i = SCENARIOS.findIndex(function (s) { return s.id === id; });
     const p = Store.data.progress.scenarios;
-    for (let k = 1; k <= SCENARIOS.length; k++) {
-      const s = SCENARIOS[(i + k) % SCENARIOS.length];
-      if (!p[s.id]) return s;
+    const path = pathOf(id);
+    if (path) {
+      const i = path.units.indexOf(id);
+      for (let k = i + 1; k < path.units.length; k++) if (!p[path.units[k]]) return scenarioById(path.units[k]);
     }
-    return SCENARIOS[(i + 1) % SCENARIOS.length];
+    const all = orderedUnits();
+    const at = all.findIndex(function (s) { return s.id === id; });
+    for (let k = 1; k < all.length; k++) { const s = all[(at + k) % all.length]; if (!p[s.id]) return s; }
+    return all[(at + 1) % all.length];
   }
 
   /* ------------------------------------------------------------------ *
@@ -1126,7 +1170,8 @@
     return {
       mode: 'roleplay', scenarioId: sc.id, title: sc.title, topicLabel: sc.title, place: sc.place,
       mission: sc.mission.en, beats: sc.turns.map(function (t) { return t.ai.en; }), outro: sc.outro.en,
-      persona: sc.persona, tint: sc.tint, maxTurns: sc.turns.length + 2
+      persona: sc.persona, tint: sc.tint, maxTurns: sc.turns.length + 2,
+      style: sc.style || '', goal: sc.goal ? sc.goal.en : ''
     };
   }
   function startLive(cfg) { V.unlock(); window.LisanLive.start(cfg); }
@@ -1140,7 +1185,39 @@
       actions: [{ label: 'OK', kind: 'btn-primary' }]
     });
   }
-  let showAllTopics = false;
+  const TOPIC_CATS = CONTENT.TOPIC_CATS || [];
+  function topicFits(t) {
+    const lvl = LEVELS.indexOf(settings().level);
+    return !t.level || LEVELS.indexOf(t.level) <= (lvl === 0 ? 0 : lvl + 1);
+  }
+  function seeded(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  /** Six topics for today: the learner's interests first, then a daily mix
+   *  across groups, filtered by level. */
+  function suggestedTopics(n) {
+    n = n || 6;
+    const rnd = seeded(dayKey().split('-').join('') | 0);
+    const pool = TOPICS.filter(topicFits);
+    const interests = (Learner.data.interests || []).map(function (x) { return String(x).toLowerCase(); });
+    const out = pool.filter(function (t) { return interests.indexOf(t.en.toLowerCase()) > -1; }).slice(0, 2);
+    const cats = TOPIC_CATS.map(function (c) {
+      return pool.filter(function (t) { return t.cat === c.id && out.indexOf(t) < 0; }).sort(function () { return rnd() - 0.5; });
+    }).sort(function () { return rnd() - 0.5; });
+    for (let round = 0; out.length < n && round < 10; round++) {
+      cats.forEach(function (list) { if (out.length < n && list[round]) out.push(list[round]); });
+    }
+    return out;
+  }
+  function topicButton(t) {
+    return '<button class="topic' + (t.level ? ' has-lvl' : '') + '" data-topic="' + t.id + '">' + icon(t.icon, 'sm') + '<span><b>' + esc(t.en) + '</b><span class="ar">' + esc(t.ar) + '</span></span>' +
+      (t.level ? '<i class="lvl" title="' + esc(t.level) + '">' + t.level.charAt(0) + '</i>' : '') + '</button>';
+  }
   function aiSection() {
     const st = Brain.state, p = partnerPersona();
     if (st === 'detecting') {
@@ -1151,14 +1228,13 @@
         '<p class="small muted">Free conversation with live gap-filling needs Claude. The role-plays below work offline in guided mode.</p>' +
         '<button class="btn btn-soft" data-act="ai-help">' + icon('info', 'sm') + 'How to turn it on</button></section>';
     }
-    const list = showAllTopics ? TOPICS : TOPICS.slice(0, 6);
+    const list = suggestedTopics(6);
     return '<section class="ai-card"><div class="ai-top"><span class="ai-orb"></span><div><b>Talk with ' + esc(p.name) + '</b>' +
         '<span>Any topic. When you get stuck, ' + esc(p.name) + ' fills the gap.</span>' +
         '<span class="ar">تحدّث عن أي موضوع، وعندما تتوقف أكمل لك الكلمة الناقصة.</span></div></div>' +
-      '<div class="topic-grid">' + list.map(function (t) {
-        return '<button class="topic" data-topic="' + t.id + '">' + icon(t.icon, 'sm') + '<span><b>' + esc(t.en) + '</b><span class="ar">' + esc(t.ar) + '</span></span></button>';
-      }).join('') + '</div>' +
-      (showAllTopics ? '' : '<button class="link-btn more-topics" data-act="more-topics">More topics' + icon('chev', 'xs') + '</button>') +
+      '<div class="eyebrow">Suggested for you today</div>' +
+      '<div class="topic-grid">' + list.map(topicButton).join('') + '</div>' +
+      '<button class="link-btn more-topics" data-act="all-topics">All ' + TOPICS.length + ' topics' + icon('chev', 'xs') + '</button>' +
       '<form class="topic-own" data-own autocomplete="off"><input id="own-topic" type="text" maxlength="80" placeholder="Or any topic you like…" aria-label="Your own topic" dir="auto">' +
         '<button class="btn btn-primary" type="submit">' + icon('mic', 'sm') + 'Talk</button></form>' +
     '</section>';
@@ -1201,6 +1277,83 @@
       '<span class="r-end">' + (rec ? '<span class="score-badge">' + rec.best + '</span>' : '') + icon('chev', 'sm') + '</span></button>';
   }
 
+  function pathCard(p) {
+    const pr = pathProgress(p);
+    return '<button class="path-card" data-path="' + p.id + '" style="--tint:' + p.tint + '">' +
+      '<span class="tile">' + icon(p.icon) + '</span>' +
+      '<span class="pc-name">' + esc(p.en) + '</span><span class="pc-ar ar">' + esc(p.ar) + '</span>' +
+      '<span class="pc-meta">' + pr.done + ' / ' + pr.total + ' done</span>' +
+      '<span class="meter-bar"><i style="width:' + Math.round((pr.done / pr.total) * 100) + '%"></i></span></button>';
+  }
+
+  /* --- Path screen --- */
+  function renderPath(id) {
+    const p = PATHS.find(function (x) { return x.id === id; }) || PATHS[0];
+    const el = $('#s-path');
+    const rec = Store.data.progress.scenarios;
+    const pr = pathProgress(p);
+    const nextId = p.units.find(function (u) { return !rec[u]; });
+    el.style.setProperty('--tint', p.tint);
+    el.innerHTML =
+      '<div class="topbar"><button class="icon-btn" data-act="back" aria-label="Back">' + icon('back') + '</button><div class="grow"></div>' +
+        '<span class="chip">' + pr.done + ' of ' + pr.total + ' done</span></div>' +
+      '<div class="scroll"><div class="path-body">' +
+        '<div class="brief-hero"><span class="tile">' + icon(p.icon) + '</span>' +
+          '<div><h1 class="display">' + esc(p.en) + '</h1><div class="ar ar-title">' + esc(p.ar) + '</div></div>' +
+          '<p class="path-goal">' + esc(p.goal.en) + '<span class="ar">' + esc(p.goal.ar) + '</span></p>' +
+          '<div class="meter-bar big" aria-label="' + pr.done + ' of ' + pr.total + ' done"><i style="width:' + Math.round((pr.done / pr.total) * 100) + '%"></i></div></div>' +
+        '<ol class="units">' + p.units.map(function (u, i) {
+          const s = scenarioById(u);
+          if (!s) return '';
+          const r = rec[u], isNext = u === nextId;
+          return '<li><button class="unit' + (r ? ' done' : '') + (isNext ? ' next' : '') + '" data-unit="' + u + '" style="--tint:' + s.tint + '">' +
+            '<span class="u-num">' + (r ? icon('check', 'xs') : (i + 1)) + '</span>' +
+            '<span class="u-body"><span class="u-title">' + esc(s.title) + (isNext ? '<span class="chip brand">Next</span>' : '') + '</span>' +
+            '<span class="u-goal">' + esc(s.goal ? s.goal.en : s.mission.en) + '</span>' +
+            '<span class="u-meta"><span class="ar">' + esc(s.titleAr) + '</span> · ' + esc(s.level) + ' · ' + s.minutes + ' min' + (s.style === 'exam' ? ' · exam practice' : '') + '</span></span>' +
+            '<span class="r-end">' + (r ? '<span class="score-badge">' + r.best + '</span>' : '') + icon('chev', 'sm') + '</span></button></li>';
+        }).join('') + '</ol>' +
+      '</div></div>';
+    el.onclick = function (e) {
+      if (e.target.closest('[data-act="back"]')) { Router.go('home'); return; }
+      const u = e.target.closest('[data-unit]');
+      if (u) Router.go('brief', { id: u.dataset.unit, from: 'path' });
+    };
+  }
+
+  /* --- Topics library --- */
+  function renderTopics() {
+    const el = $('#s-topics');
+    const ai = Brain.available();
+    el.innerHTML =
+      '<div class="topbar"><button class="icon-btn" data-act="back" aria-label="Back">' + icon('back') + '</button><div class="grow"></div>' +
+        '<span class="chip">' + TOPICS.length + ' topics</span></div>' +
+      '<div class="scroll"><div class="path-body">' +
+        '<div class="greet"><h1 class="display">Talk about anything</h1><p>Pick a topic, and ' + esc(partnerPersona().name) + ' starts the conversation.<span class="ar inl">اختر موضوعاً</span></p></div>' +
+        (ai ? '<form class="topic-own" data-own autocomplete="off"><input id="own-topic" type="text" maxlength="80" placeholder="Or type any topic…" aria-label="Your own topic" dir="auto">' +
+            '<button class="btn btn-primary" type="submit">' + icon('mic', 'sm') + 'Talk</button></form>' :
+          '<div class="tip-card hint"><div class="tc-body"><div class="tc-label">AI partner is off</div><div class="small">Free conversation needs Claude.</div></div>' +
+            '<button class="btn btn-soft" data-act="ai-help" style="min-height:40px;font-size:14px">How to turn it on</button></div>') +
+        TOPIC_CATS.map(function (c) {
+          const list = TOPICS.filter(function (t) { return t.cat === c.id; });
+          return '<section class="section"><div class="section-head"><h2>' + esc(c.en) + '</h2><span class="ar">' + esc(c.ar) + '</span></div>' +
+            '<div class="topic-grid">' + list.map(topicButton).join('') + '</div></section>';
+        }).join('') +
+        '<p class="note" style="padding-inline:4px">Topics marked I or A suit intermediate or advanced speakers.</p>' +
+      '</div></div>';
+    el.onclick = function (e) {
+      if (e.target.closest('[data-act="back"]')) { Router.go('home'); return; }
+      if (e.target.closest('[data-act="ai-help"]')) { aiHelp(); return; }
+      const tp = e.target.closest('[data-topic]');
+      if (tp) {
+        if (!Brain.available()) { aiHelp(); return; }
+        const t = TOPICS.find(function (x) { return x.id === tp.dataset.topic; });
+        if (t) startLive(liveFromTopic(t));
+      }
+    };
+    el.onsubmit = onHomeSubmit;
+  }
+
   function homePractice() {
     const g = greeting();
     const rec = recommended();
@@ -1220,11 +1373,9 @@
           '<div class="ring-txt"><div><b>' + Math.floor(mins) + '</b><span>of ' + goal + ' min</span></div></div></div>' +
         '<button class="btn btn-primary" data-sc="' + rec.id + '">' + icon('mic', 'sm') + 'Start speaking</button>' +
       '</div>';
-    CATEGORIES.forEach(function (c) {
-      const list = SCENARIOS.filter(function (x) { return x.category === c.id; });
-      html += '<section class="section"><div class="section-head"><h2>' + esc(c.en) + '</h2><span class="ar">' + esc(c.ar) + '</span></div>' +
-        '<div class="group">' + list.map(scenarioRow).join('') + '</div></section>';
-    });
+    html += '<section class="section"><div class="section-head"><h2>Learning paths</h2><span class="ar">مسارات التعلّم</span></div>' +
+      '<div class="path-grid">' + PATHS.map(pathCard).join('') + '</div>' +
+      '<p class="note" style="padding-inline:4px">' + SCENARIOS.length + ' role-plays in ' + PATHS.length + ' paths, each from easier to harder.</p></section>';
     return html;
   }
 
@@ -1332,7 +1483,9 @@
     if (sc) { Router.go('brief', sc.dataset.sc); return; }
     if (e.target.closest('[data-act="settings"]')) { openSettings(); return; }
     if (e.target.closest('[data-act="ai-help"]')) { aiHelp(); return; }
-    if (e.target.closest('[data-act="more-topics"]')) { showAllTopics = true; renderHome(); return; }
+    if (e.target.closest('[data-act="all-topics"]')) { Router.go('topics'); return; }
+    const pth = e.target.closest('[data-path]');
+    if (pth) { Router.go('path', pth.dataset.path); return; }
     const tp = e.target.closest('[data-topic]');
     if (tp) {
       const t = TOPICS.find(function (x) { return x.id === tp.dataset.topic; });
@@ -1392,30 +1545,45 @@
   }
 
   /* --- Brief --- */
-  function renderBrief(id) {
+  function renderBrief(arg) {
+    const id = typeof arg === 'object' ? arg.id : arg;
+    const from = typeof arg === 'object' ? arg.from : '';
     const sc = scenarioById(id);
     const el = $('#s-brief');
+    const path = pathOf(sc.id);
+    Store.data.progress.lastPath = sc.category;
+    Store.save();
+    const vocab = sc.vocab || [];
     const p = sc.persona;
     const phrases = sc.turns.map(function (t) { return t.model; }).filter(Boolean).slice(0, 5);
     const ai = Brain.available();
     el.style.setProperty('--tint', sc.tint);
     el.innerHTML =
       '<div class="topbar"><button class="icon-btn" data-act="back" aria-label="Back">' + icon('back') + '</button><div class="grow"></div>' +
+        (path ? '<span class="chip">' + esc(path.en) + ' · ' + (path.units.indexOf(sc.id) + 1) + ' of ' + path.units.length + '</span>' : '') +
         '<span class="chip">' + esc(sc.level) + ' · ' + sc.minutes + ' min</span></div>' +
       '<div class="scroll"><div class="brief-body' + (ai ? ' tall' : '') + '">' +
         '<div class="brief-hero"><span class="tile">' + icon(sc.icon) + '</span>' +
           '<div><h1 class="display">' + esc(sc.title) + '</h1><div class="ar ar-title">' + esc(sc.titleAr) + '</div></div>' +
           '<div class="persona-line"><span class="avatar">' + esc(p.name.charAt(0)) + '</span><div><b>' + esc(p.name) + '</b><div class="muted small">' + esc(p.role) + ' · <span class="ar">' + esc(p.roleAr) + '</span></div></div></div>' +
         '</div>' +
-        '<div class="mission"><span class="eyebrow">Your mission</span><p>' + esc(sc.mission.en) + '</p><p class="ar">' + esc(sc.mission.ar) + '</p></div>' +
+        '<div class="mission">' +
+          (sc.goal ? '<span class="eyebrow">Goal</span><p class="goal-en">' + esc(sc.goal.en) + '</p><p class="ar">' + esc(sc.goal.ar) + '</p><hr>' : '') +
+          '<span class="eyebrow">Your mission</span><p>' + esc(sc.mission.en) + '</p><p class="ar">' + esc(sc.mission.ar) + '</p></div>' +
+        (vocab.length ? '<section class="section"><div class="section-head"><h2>Key words</h2><span class="ar">كلمات مهمة</span></div>' +
+          '<div class="word-cloud">' + vocab.map(function (v, i) {
+            return '<button class="gap-chip big" data-vocab="' + i + '">' + icon('volume', 'xs') + '<b>' + esc(v.en) + '</b><span class="ar">' + esc(v.ar) + '</span></button>';
+          }).join('') + '</div></section>' : '') +
         '<section class="section"><div class="section-head"><h2>Phrases you’ll use</h2><span class="ar">عبارات ستحتاجها</span></div>' +
           '<div class="group">' + phrases.map(function (ph, i) {
             return '<div class="phrase"><div class="p-body"><span class="p-en">' + esc(ph.en) + '</span><span class="p-ar ar">' + esc(ph.ar) + '</span></div>' +
               '<div class="p-actions"><button class="icon-btn" data-say="' + i + '" aria-label="Listen">' + icon('volume', 'sm') + '</button>' +
               '<button class="icon-btn" data-save="' + i + '" aria-label="Save phrase">' + icon('star', 'sm') + '</button></div></div>';
           }).join('') + '</div></section>' +
+        (sc.tip ? '<div class="tip-card note-card"><div class="tc-body"><div class="tc-label">Good to know · <span class="ar">معلومة مفيدة</span></div>' +
+          '<div class="tc-en">' + esc(sc.tip.en) + '</div><div class="tc-ar ar">' + arHtml(sc.tip.ar) + '</div></div></div>' : '') +
         (ai ?
-          '<div class="tip-card"><div class="tc-body"><div class="tc-label">Live conversation</div>' +
+          '<div class="tip-card"><div class="tc-body"><div class="tc-label">' + (sc.style === 'exam' ? 'Live exam practice' : 'Live conversation') + '</div>' +
             '<div class="small">Talk naturally with ' + esc(p.name) + '. If you freeze, Lisan offers the missing word, and says it if you need. Mistakes are fixed quietly while you talk.</div>' +
             '<div class="tc-ar ar">تحدّث بشكل طبيعي. إذا توقفت يقترح لك لسان الكلمة الناقصة، وتُصحَّح أخطاؤك بهدوء أثناء الحديث.</div></div></div>' :
           '<div class="tip-card"><div class="tc-body"><div class="tc-label">How it works</div>' +
@@ -1427,8 +1595,10 @@
           '<button class="btn btn-soft btn-block" data-act="start">Guided practice, step by step</button></div>' :
         '<div class="foot"><button class="btn btn-primary btn-block" data-act="start">' + icon('mic', 'sm') + 'Start conversation</button></div>');
     el.onclick = function (e) {
-      if (e.target.closest('[data-act="back"]')) { V.stop(); Router.go('home'); return; }
+      if (e.target.closest('[data-act="back"]')) { V.stop(); if (from === 'path' && path) Router.go('path', path.id); else Router.go('home'); return; }
       if (e.target.closest('[data-act="start"]')) { V.unlock(); Router.go('talk', sc.id); return; }
+      const vb = e.target.closest('[data-vocab]');
+      if (vb) { V.speak(vocab[+vb.dataset.vocab].en, { role: 'coach' }); return; }
       if (e.target.closest('[data-act="live"]')) { startLive(liveFromScenario(sc)); return; }
       const say = e.target.closest('[data-say]');
       if (say) { V.speak(phrases[+say.dataset.say].en, { role: 'coach' }); return; }
@@ -1684,13 +1854,13 @@
   window.LisanUI = {
     esc: esc, icon: icon, wordSpans: wordSpans, markWord: markWord, clearMarks: clearMarks, arHtml: arHtml,
     toast: toast, modal: modal, Router: Router, Progress: Progress, Phrases: Phrases, Orb: Orb, ringSvg: ringSvg,
-    settings: settings, save: function () { Store.save(); }
+    settings: settings, save: function () { Store.save(); }, nextScenario: nextScenario
   };
 
   function boot() {
     Store.load();
     Router.screens = {
-      onb: renderOnboarding, home: renderHome, brief: renderBrief, summary: renderSummary,
+      onb: renderOnboarding, home: renderHome, brief: renderBrief, summary: renderSummary, path: renderPath, topics: renderTopics,
       talk: function (id) { startTalk(id); Router.leave = function () { if (activeTalk) { activeTalk.destroy(); activeTalk = null; } }; },
       live: function (t) { window.LisanLive.mount(t); Router.leave = window.LisanLive.leave; },
       report: function (d) { window.LisanLive.renderReport(d); }

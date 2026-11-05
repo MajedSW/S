@@ -164,12 +164,17 @@
       en: 'With "yesterday", "last week" or "ago", use the past tense.',
       ar: 'مع yesterday و last week و ago نستخدم الفعل في الماضي: Yesterday I went.',
       apply: function (s) {
-        if (!/\b(yesterday|last\s+(night|week|month|year|time|summer|winter|weekend|friday|saturday|sunday)|(\d+|a|an|one|two|three|four|five|six|few|couple of)\s+(days?|weeks?|months?|years?)\s+ago)\b/i.test(s)) return s;
-        return s.replace(/\b(I|we|they|he|she)\s+(go|eat|see|take|come|have|buy|fly|visit|work|meet|watch|play|travel|arrive|stay|study|live|get|make|do|say|tell|give|find|leave|feel|pay|sleep|drive|write|speak|call|start|finish|try|lose|forget|book|move)\b/gi,
-          function (m, subj, verb, off, str) {
-            if (!opensClause(str, off, subj)) return m;
-            return subj + ' ' + keepCase(verb, pastForm(verb));
-          });
+        // Only the sentence that contains the time word: "I was sick last
+        // week. I have a note." keeps "I have".
+        const MARK = /\b(yesterday|last\s+(night|week|month|year|time|summer|winter|weekend|friday|saturday|sunday)|(\d+|a|an|one|two|three|four|five|six|few|couple of)\s+(days?|weeks?|months?|years?)\s+ago)\b/i;
+        return s.replace(/[^.!?]+[.!?]*/g, function (sentence) {
+          if (!MARK.test(sentence)) return sentence;
+          return sentence.replace(/\b(I|we|they|he|she)\s+(go|eat|see|take|come|have|buy|fly|visit|work|meet|watch|play|travel|arrive|stay|study|live|get|make|do|say|tell|give|find|leave|feel|pay|sleep|drive|write|speak|call|start|finish|try|lose|forget|book|move)\b/gi,
+            function (m, subj, verb, off, str) {
+              if (!opensClause(str, off, subj)) return m;
+              return subj + ' ' + keepCase(verb, pastForm(verb));
+            });
+        });
       }
     },
     {

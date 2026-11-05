@@ -172,6 +172,7 @@
     return Object.assign({
       mode: c.mode, level: st.level, persona: this.persona,
       topic: c.topic, angle: c.angle, place: c.place, mission: c.mission, beats: c.beats, outro: c.outro,
+      style: c.style, goal: c.goal,
       maxTurns: c.maxTurns, learner: Learner.summary(),
       history: this.history.map(function (h) { return { role: h.role, text: h.text, note: h.note }; })
     }, extra || {});
@@ -955,18 +956,22 @@
     if (r && r.next_step) {
       body += '<div class="tip-card"><div class="tc-body"><div class="tc-label">Next time</div><div class="tc-en">' + ui.esc(r.next_step) + '</div><div class="tc-ar ar">' + ui.arHtml(r.next_step_ar) + '</div></div></div>';
     }
+    const next = d.cfg.scenarioId && ui.nextScenario ? ui.nextScenario(d.cfg.scenarioId) : null;
     el.innerHTML =
       '<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Close">' + ui.icon('x') + '</button><div class="grow"></div>' +
         '<span class="chip ok">' + ui.icon('check', 'xs') + ui.esc(d.cfg.title) + '</span></div>' +
       '<div class="scroll"><div class="sum-body">' + body + '</div></div>' +
       '<div class="foot stack">' +
-        '<button class="btn btn-primary btn-block" data-act="again">' + ui.icon('mic', 'sm') + 'Talk again</button>' +
-        '<button class="btn btn-soft btn-block" data-act="home">Back to home</button>' +
+        (next ? '<button class="btn btn-primary btn-block" data-act="next">Next: ' + ui.esc(next.title) + ui.icon('arrow', 'sm') + '</button>' +
+          '<button class="btn btn-soft btn-block" data-act="again">' + ui.icon('redo', 'sm') + 'Practise this again</button>' :
+          '<button class="btn btn-primary btn-block" data-act="again">' + ui.icon('mic', 'sm') + 'Talk again</button>' +
+          '<button class="btn btn-soft btn-block" data-act="home">Back to home</button>') +
       '</div>';
     el.onclick = function (e) {
       const a = e.target.closest('[data-act]');
       if (a && a.dataset.act === 'home') { ui.Router.go('home', 'practice'); return; }
       if (a && a.dataset.act === 'again') { V.unlock(); start(d.cfg); return; }
+      if (a && a.dataset.act === 'next' && next) { ui.Router.go('brief', next.id); return; }
       const sb = e.target.closest('[data-say-better]');
       if (sb) { V.speak(better[+sb.dataset.sayBetter].better, { role: 'coach' }); return; }
       const w = e.target.closest('[data-word]');

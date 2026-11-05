@@ -15,7 +15,8 @@ missing, without stopping the conversation to lecture them.
 | **Corrects silently** | Your partner echoes your idea back in correct English inside its reply. Those words are underlined, so you notice them without being interrupted. Under your own bubble, a quiet **Polished** line shows the natural version, with **Why?** for a short Arabic explanation. |
 | **Knows your difficulties** | Every mistake type and every missing word goes into a local learner profile. Your partner is told your weak spots and recent words, so it models those structures and brings the words back in later conversations. **Progress → What Lisan noticed** shows the same picture. |
 | **Coaching report** | At the end: fluency, grammar, vocabulary and confidence scores, what went well, the patterns to work on (with Arabic tips), "say it better" rewrites and new words, all saved to your **Notebook**. |
-| **Works offline too** | Without AI, the 10 role-plays run as guided practice with an offline grammar coach tuned to common Arabic-speaker errors, and the say-it-again loop. |
+| **A real curriculum** | 36 role-plays in 6 learning paths, each ordered from easier to harder: **Travel** (9), **Daily life** (6), **Health** (4), **Work** (7), **Study & exams** (5, including IELTS Speaking Parts 1–3) and **Friends & culture** (5, including hosting a guest and explaining Ramadan). Every role-play has an "I can…" goal, a mission, six key words and a cultural or language note. Plus 38 free-conversation topics in six groups, from everyday chat to debates, with six suggested each day for your level and interests. |
+| **Works offline too** | Without AI, all 36 role-plays run as guided practice with an offline grammar coach tuned to common Arabic-speaker errors, and the say-it-again loop. |
 
 *Inspired by AI speaking tutors such as Loora (personal AI partner, any-topic
 conversation, real-time feedback, rephrasing, progress), plus the live
@@ -82,10 +83,12 @@ lisan/
 │   ├── voice.js              speech OUT: studio clips → cloud neural → best device voice
 │   ├── listen.js             speech IN: device (live transcript) or cloud transcription
 │   ├── coach.js              offline grammar coach for guided mode
-│   ├── scenarios.js          role-plays and free-talk topics (pure data)
+│   ├── scenarios.js          paths, topics, first 10 role-plays (pure data)
+│   ├── content-*.js          the other 26 role-plays, one file per area
 │   └── app.js                screens, guided mode, notebook, progress, settings
 ├── server/server.mjs         static app + /api/brain, /api/tts, /api/stt
-└── tools/build-voice-pack.mjs  pre-records the fixed lines of guided mode
+├── tools/build-voice-pack.mjs  pre-records the fixed lines of guided mode
+└── tools/check-content.mjs     validates all lesson content
 ```
 
 ### A live turn, step by step
@@ -119,8 +122,8 @@ The UI calls `LisanVoice.speak(text, {role, gender})`. The engine uses the best
 voice available and falls back automatically:
 
 1. **Studio voice pack:** `node tools/build-voice-pack.mjs --provider openai`
-   pre-records every fixed guided-mode line (clips are keyed by text, so
-   reordering is safe).
+   pre-records every fixed guided-mode line: about 570 lines per accent
+   (≈31k characters). Clips are keyed by their text, so reordering is safe.
 2. **Premium cloud voice:** for live AI replies and anything dynamic. It turns
    on automatically when the server has `OPENAI_API_KEY` or
    `ELEVENLABS_API_KEY`, or you can connect a provider in Settings.
@@ -139,10 +142,18 @@ you turn on cloud listening.
 
 ## Extending
 
-* **Role-play:** add an object to `SCENARIOS` in `js/scenarios.js`. In live
-  mode its turns become story beats for the AI. In guided mode they're the
-  script.
-* **Topic:** add `{id, en, ar, icon, angle}` to `TOPICS`.
+Run `node tools/check-content.mjs` after any content change. It checks that
+every path unit exists and every role-play has all its fields. It also checks
+that no model answer gets "corrected" by the offline coach (false positives)
+and that every model answer is recognised as on-topic.
+
+* **Role-play:** add it to the right `js/content-*.js` file with
+  `addScenarios([...])` (field reference at the top of `js/scenarios.js`), then
+  list its id in that path's `units` in `PATHS`, in difficulty order. In live
+  mode its turns become story beats for the AI; in guided mode they're the
+  script. `style: 'exam'` makes the AI a neutral examiner and adds a band
+  estimate to the report.
+* **Topic:** add `{id, cat, en, ar, icon, angle, level?}` to `TOPICS`.
 * **Partner behaviour:** edit `PARTNER_CORE` and the task prompts in
   `js/prompts.js`. The server and claude.ai both use it.
 * **Offline grammar rule:** add `{id, type, en, ar, apply}` to `RULES` in

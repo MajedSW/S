@@ -46,6 +46,8 @@
       angle: clip(ctx.angle, 240),
       place: clip(ctx.place, 80),
       mission: clip(ctx.mission, 240),
+      goal: clip(ctx.goal, 200),
+      style: ctx.style === 'exam' ? 'exam' : '',
       beats: list(ctx.beats, 10, 200),
       outro: clip(ctx.outro, 200),
       maxTurns: Math.max(4, Math.min(16, parseInt(ctx.maxTurns, 10) || 9)),
@@ -105,9 +107,16 @@
   function turnPrompt(c) {
     const p = c.persona;
     let scene;
-    if (c.mode === 'roleplay') {
+    if (c.mode === 'roleplay' && c.style === 'exam') {
+      scene = 'This is IELTS Speaking practice, and it overrides the gap-filling and correcting rules above. You are ' + p.name + ', the examiner. ' +
+        'Follow the test format: ask the questions below in order, one at a time, word for word where possible. If an answer is very short, you may ask one short follow-up such as "Why?" or "Can you tell me more?". ' +
+        'Stay friendly but neutral like a real examiner: do not correct, teach, praise or give your own opinions during the test. If the learner freezes, say "Take your time" or rephrase the question more simply; never answer for them.\n' +
+        (c.beats.length ? 'Questions:\n' + c.beats.map(function (b, i) { return (i + 1) + '. ' + b; }).join('\n') + '\n' : '') +
+        'After the last question, say the closing line' + (c.outro ? ' ("' + c.outro + '")' : '') + ' and end the English part with [END].';
+    } else if (c.mode === 'roleplay') {
       scene = 'This is a role-play. You are ' + p.name + ', ' + p.role + (c.place ? ', at ' + c.place : '') + '. Stay in character.\n' +
         (c.mission ? "The learner's mission: " + c.mission + '\n' : '') +
+        (c.goal ? "Their learning goal: " + c.goal + ' Give them natural chances to practise it.\n' : '') +
         (c.beats.length ? 'Cover these story beats in order, roughly one per reply, adapting freely to whatever the learner says:\n' +
           c.beats.map(function (b, i) { return (i + 1) + '. ' + b; }).join('\n') + '\n' : '') +
         'When every beat is done, close the scene warmly in one or two sentences' + (c.outro ? ' (for example: "' + c.outro + '")' : '') +
@@ -241,6 +250,8 @@
       body = 'You are a warm, honest English speaking coach. Write a short report on this conversation by ' + who + '.\n\n' +
         'Conversation:\n' + transcript(c, 30) + '\n\nCorrections noted during the conversation:\n' + (fx || '(none)') + '\n\n' +
         (c.stats ? 'Stats: ' + c.stats.learnerTurns + ' replies, ' + c.stats.words + ' English words, ' + c.stats.gaps + ' times they needed a missing word, about ' + c.stats.wpm + ' words per minute.\n\n' : '') +
+        (c.goal ? "The learner's goal for this conversation: " + c.goal + ' In next_step, say honestly whether they reached it.\n\n' : '') +
+        (c.style === 'exam' ? 'This was IELTS Speaking practice. Start the headline with an estimated band, e.g. "About Band 6.0:", judged realistically on fluency and coherence, lexical resource, grammatical range and accuracy.\n\n' : '') +
         'Return JSON with:\n- headline: one encouraging, specific sentence (max 14 words); headline_ar: its Arabic.\n' +
         '- scores: integers 0-100 for fluency (flow, length, few freezes), grammar, vocabulary (range and precision) and confidence. Be fair for their level; do not inflate.\n' +
         '- strengths: 1-2 short, specific things they did well.\n' +

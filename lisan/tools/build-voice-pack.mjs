@@ -48,7 +48,8 @@ try { voiceOverrides = JSON.parse(opt('voices', '{}')); } catch { die('--voices 
 /* ---------- load the app's own modules (same hashing + content) ---------- */
 const sandbox = { window: {}, console };
 vm.createContext(sandbox);
-for (const f of ['js/voice-key.js', 'js/scenarios.js']) {
+const contentFiles = fs.readdirSync(path.join(ROOT, 'js')).filter((f) => /^content-.*\.js$/.test(f)).sort().map((f) => 'js/' + f);
+for (const f of ['js/voice-key.js', 'js/scenarios.js', ...contentFiles]) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), sandbox, { filename: f });
 }
 const { clipKey, normText } = sandbox.window.LisanVoiceKey;
