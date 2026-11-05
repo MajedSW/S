@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lisan English Coach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Practice speaking English out loud in real-life conversations, with instant corrections explained in Arabic.">
+<meta name="theme-color" content="#0F6E5A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lisan">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&amp;family=Figtree:wght@400..800&amp;family=Readex+Pro:wght@300..600&amp;display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app" id="app">
+  <section class="screen onb" id="s-onb" aria-label="Welcome"></section>
+  <section class="screen" id="s-home" aria-label="Home"></section>
+  <section class="screen" id="s-brief" aria-label="Scenario"></section>
+  <section class="screen" id="s-talk" aria-label="Conversation"></section>
+  <section class="screen" id="s-summary" aria-label="Results"></section>
+
+  <div class="sheet-wrap" id="sheet" aria-hidden="true">
+    <div class="scrim"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-grip"></div>
+      <div class="sheet-head">
+        <h2 id="sheet-title">Settings</h2>
+        <button class="icon-btn" data-act="close-sheet" aria-label="Close settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="scroll"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/voice-key.js"></script>
+<script src="js/coach.js"></script>
+<script src="js/scenarios.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/listen.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
