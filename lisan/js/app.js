@@ -948,7 +948,12 @@
     if (!this.alive) return;
     const t = this.sc.turns[this.idx];
     let ack = null;
-    if (t && t.ack) { const p = C.polarity(answer || ''); if (p && t.ack[p]) ack = t.ack[p]; }
+    if (t && t.ack) {
+      let p = C.polarity(answer || '');
+      const canon = ' ' + C.canonTokens(answer || '').join(' ') + ' ';
+      if (!p && t.noWords && t.noWords.some(function (w) { return canon.indexOf(' ' + w + ' ') > -1; })) p = 'no';
+      if (p && t.ack[p]) ack = t.ack[p];
+    }
     this.idx++;
     this.hintLevel = 0;
     this.turnHinted = false;
@@ -1020,10 +1025,10 @@
           '<p class="lede">Practice real conversations out loud — at the airport, the café, at work. Get corrected the moment you slip, and say it again until it feels natural.</p>' +
           '<p class="lede-ar ar">تفهم الإنجليزية لكن تتوقف عندما تتحدث؟ تدرّب على محادثات حقيقية بصوتك، واحصل على تصحيح فوري مع شرح بالعربية.</p>' +
           '<div class="demo" aria-label="Example correction">' +
-            '<div class="msg ai"><div class="bubble"><div class="en">Do you have a reservation?</div><div class="trans ar">هل لديك حجز؟</div></div></div>' +
-            '<div class="msg me"><div class="bubble"><div class="en">No, I not have a reservation.</div></div></div>' +
-            '<div class="line wrong"><span class="mark">' + icon('x') + '</span><span class="txt">No, I <del class="d">not</del> have a reservation.</span></div>' +
-            '<div class="line right"><span class="mark">' + icon('check') + '</span><span class="txt">No, I <ins class="i">don’t</ins> have a reservation.</span></div>' +
+            '<div class="msg ai"><div class="bubble"><div class="en">How long have you lived in Riyadh?</div><div class="trans ar">منذ متى تعيش في الرياض؟</div></div></div>' +
+            '<div class="msg me"><div class="bubble"><div class="en">I live here since five years.</div></div></div>' +
+            '<div class="line wrong"><span class="mark">' + icon('x') + '</span><span class="txt">I <del class="d">live</del> here <del class="d">since</del> five years.</span></div>' +
+            '<div class="line right"><span class="mark">' + icon('check') + '</span><span class="txt">I <ins class="i">have</ins> <ins class="i">lived</ins> here <ins class="i">for</ins> five years.</span></div>' +
           '</div>' +
           '<div class="steps-list">' +
             '<div class="step"><span class="n">' + icon('headphones') + '</span><div><b>Talk through real situations</b><span>Ten scenes with characters who answer you back.</span></div></div>' +

@@ -110,8 +110,9 @@ for the speaking orb.
   builder.
 * **Add a grammar rule:** append `{ id, type:'error'|'style', en, ar, apply }`
   to `RULES` in `js/coach.js`. Rules target common Arabic-speaker
-  errors, for example: missing *to* / *am*, *I not have*, *since two days*,
-  *open the light*, *I have 25 years*, *more better* and *discuss about*.
+  errors, for example: missing *am / is / are*, *since two days*,
+  *open the light*, *I have 25 years*, *I have headache*, *more better*,
+  *discuss about* and *explain me*.
 
 ## Where a full AI conversation would plug in
 

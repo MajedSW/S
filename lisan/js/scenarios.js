@@ -14,6 +14,7 @@
      also      another natural way to say it        {en, ar}
      reprompt  what the character says if the answer was off-topic
      ack       {yes:{en,ar}, no:{en,ar}} reaction to a yes/no answer
+     noWords   phrases that count as "no" for ack (e.g. 'too big')
 
    Voices: every English line here can be pre-recorded by
    tools/build-voice-pack.mjs — no file names to manage.
@@ -48,17 +49,17 @@
       place: 'Departures · Check-in desk',
       persona: { name: 'Sarah', role: 'Check-in agent', roleAr: 'موظفة تسجيل الوصول', gender: 'female' },
       mission: {
-        en: 'Check in for your flight, drop one bag and choose your seat.',
-        ar: 'سجّل وصولك للرحلة، وسلّم حقيبتك، واختر مقعدك.'
+        en: 'Check in for your flight to Toronto, drop one bag and choose your seat.',
+        ar: 'سجّل وصولك لرحلتك إلى تورونتو، وسلّم حقيبتك، واختر مقعدك.'
       },
       turns: [
         {
-          ai: { en: 'Good morning! Where are you flying today?', ar: 'صباح الخير! إلى أين ستسافر اليوم؟' },
-          keys: ['#place', 'to', 'fly', 'flying'], tense: 'progressive',
-          hint: { ar: 'اذكر المدينة التي تسافر إليها.', starter: "I'm flying to …" },
-          model: { en: "I'm flying to London.", ar: 'أنا مسافر إلى لندن.' },
-          also: { en: "I'm heading to London.", ar: 'أنا متجه إلى لندن.' },
-          reprompt: { en: 'Sorry, which city are you flying to?', ar: 'عذراً، إلى أي مدينة ستسافر؟' }
+          ai: { en: "Next, please! Good morning. What's your final destination today?", ar: 'التالي من فضلك! صباح الخير. ما هي وجهتك النهائية اليوم؟' },
+          keys: ['#place', 'to', 'travel', 'traveling', 'travelling', 'going', 'destination'], tense: 'progressive',
+          hint: { ar: 'اذكر المدينة التي ستصل إليها في النهاية.', starter: "I'm traveling to …" },
+          model: { en: "I'm traveling to Toronto.", ar: 'أنا مسافر إلى تورونتو.' },
+          also: { en: 'Toronto, with a short stop in Frankfurt.', ar: 'تورونتو، مع توقف قصير في فرانكفورت.' },
+          reprompt: { en: 'Sorry, which city are you going to in the end?', ar: 'عذراً، إلى أي مدينة ستصل في النهاية؟' }
         },
         {
           ai: { en: 'Lovely. May I see your passport, please?', ar: 'رائع. هل يمكنني رؤية جواز سفرك من فضلك؟' },
@@ -108,8 +109,8 @@
       place: 'Cabin · Seat 24A',
       persona: { name: 'Olivia', role: 'Flight attendant', roleAr: 'مضيفة طيران', gender: 'female' },
       mission: {
-        en: 'Find your seat, get past another passenger politely, and order a drink and a meal.',
-        ar: 'اعثر على مقعدك، واطلب المرور من راكب آخر بلباقة، ثم اطلب مشروباً ووجبة.'
+        en: 'Show your boarding pass, sort out where your bag goes, and order a drink and a meal.',
+        ar: 'أظهر بطاقة صعودك، وجد مكاناً لحقيبتك، ثم اطلب مشروباً ووجبة.'
       },
       turns: [
         {
@@ -120,14 +121,19 @@
           also: { en: 'Of course. Here it is.', ar: 'طبعاً، ها هي.' }
         },
         {
-          ai: { en: "Thank you. You're in twenty-four A, a window seat on the left. Someone is sitting in the aisle seat, so just ask him to let you through.", ar: 'شكراً لك. مقعدك 24A بجانب النافذة على اليسار. يجلس شخص في مقعد الممر، فاطلب منه بلطف أن يسمح لك بالمرور.' },
-          keys: ['excuse', 'sorry', 'pass', 'get by', 'through', 'could', 'can', 'let me', 'past'],
-          hint: { ar: 'ابدأ بـ Excuse me ثم اطلب المرور بلطف.', starter: 'Excuse me, could I …' },
-          model: { en: 'Excuse me, could I get by, please?', ar: 'عذراً، هل يمكنني المرور من فضلك؟' },
-          also: { en: 'Sorry, could I just squeeze past?', ar: 'آسف، هل يمكنني المرور من جانبك؟' }
+          ai: { en: "Thank you. You're in twenty-four A, by the window. The lockers above your row are already full. Will your bag fit under the seat in front of you?", ar: 'شكراً لك. مقعدك 24A بجانب النافذة. الخزائن فوق صفّك ممتلئة. هل تتسع حقيبتك تحت المقعد الذي أمامك؟' },
+          keys: ['#yesno', 'fit', 'fits', 'big', 'small', 'large', 'space', 'room', 'under', 'bag', 'somewhere', 'locker'],
+          hint: { ar: 'قل إن الحقيبة كبيرة واسأل عن مكان آخر، أو قل إنها تتسع.', starter: "I'm afraid it's too …" },
+          model: { en: "I'm afraid it's too big. Is there any space somewhere else?", ar: 'للأسف إنها كبيرة جداً. هل توجد مساحة في مكان آخر؟' },
+          also: { en: "Yes, it's small. It'll fit under the seat.", ar: 'نعم، إنها صغيرة. ستتسع تحت المقعد.' },
+          noWords: ['too big', 'too large', 'not fit', 'any space', 'somewhere else'],
+          ack: {
+            no: { en: "No problem. I'll find a space for it near the front.", ar: 'لا مشكلة. سأجد لها مكاناً قرب المقدمة.' },
+            yes: { en: 'Perfect, thank you.', ar: 'ممتاز، شكراً لك.' }
+          }
         },
         {
-          ai: { en: 'Great. Would you like something to drink after take-off? We have water, juice, coffee and tea.', ar: 'رائع. هل تودّ شيئاً لتشربه بعد الإقلاع؟ لدينا ماء وعصير وقهوة وشاي.' },
+          ai: { en: 'Would you like something to drink after take-off? We have water, juice, coffee and tea.', ar: 'هل تودّ شيئاً لتشربه بعد الإقلاع؟ لدينا ماء وعصير وقهوة وشاي.' },
           keys: ['water', 'juice', 'coffee', 'tea', 'orange', 'apple', 'please', 'nothing', 'have', 'like'],
           hint: { ar: 'اطلب مشروباً بلطف: Could I have…, please?', starter: 'Could I have …' },
           model: { en: 'Could I have an orange juice, please?', ar: 'هل يمكنني الحصول على عصير برتقال، من فضلك؟' },

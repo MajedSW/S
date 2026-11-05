@@ -174,8 +174,8 @@
     },
     {
       id: 'missing-to-place', type: 'error',
-      en: 'After verbs of movement, put "to" before the place.',
-      ar: 'بعد أفعال الحركة مثل fly و go و travel نضع to قبل اسم المكان: flying to London.',
+      en: 'After verbs of movement, put "to" before the place: "going to Paris".',
+      ar: 'بعد أفعال الحركة مثل go و travel و drive نضع to قبل اسم المكان: going to Paris.',
       apply: rx(/\b(fly|flying|flew|go|going|went|travel|travelling|traveling|travelled|traveled|come|coming|came|move|moving|moved|return|returning|returned|drive|driving|drove|head|heading)\s+([A-Za-z][A-Za-z'-]*)/gi,
         function (m, verb, next) {
           if (/^(to|home|back|there|here|abroad|by|with|on|in|at|now|today|tonight|tomorrow|every|a|an|the|for|out|up|down|away|first|economy|business|from|and|or|but|soon|later|again|very|so|too|alone|together|downtown|upstairs|downstairs|inside|outside|over|through|around|into|via|direct|directly|well|fast|slowly|this|that|next|last|I)$/i.test(next)) return m;
@@ -185,7 +185,7 @@
     {
       id: 'present-continuous-plan', type: 'error',
       en: 'For a trip that is happening now or soon, use am/are + -ing.',
-      ar: 'للحديث عن رحلة تحدث الآن أو قريباً نستخدم am / are + الفعل مع ing: I am flying to London.',
+      ar: 'للحديث عن رحلة تحدث الآن أو قريباً نستخدم am / are + الفعل مع ing: I am traveling to Paris.',
       apply: function (s, ctx) {
         if (!ctx || ctx.tense !== 'progressive') return s;
         return s.replace(/\b(I|we|they)\s+(fly|go|travel|leave|stay|join|work|start|move|head)\b(?=\s+(?:to|at|in|for|on|with|the|a|tomorrow|today|tonight|next)\b)/gi,
@@ -449,19 +449,9 @@
     },
     {
       id: 'good-at', type: 'error',
-      en: 'For skills, say "good at": "I\'m not very good at English."',
-      ar: 'مع المهارات نقول good at: I’m not very good at English.',
-      apply: function (s) {
-        return s.replace(/\b(I'm|I\s+am)\s+not\s+((?:so|very|too|that)\s+)?good\s+(?:in\s+)?english\b/gi, '$1 not $2good at English')
-          .replace(/\bmy\s+english\s+not\b/gi, function (m) { return keepCase(m, 'my') + ' English is not'; });
-      }
-    },
-    {
-      id: 'be-back', type: 'error',
-      en: 'To promise to return soon, say "I\'ll be back in…".',
-      ar: 'للوعد بالعودة قريباً نقول I’ll be back in a minute (سأعود بعد دقيقة).',
-      apply: rx(/\bI\s+(?:come|coming|am coming|will come)\s+back\s+(?:in|after)\s+(a|one|two|five|ten|\d+|a few)\s+(minutes?|seconds?|moment|hours?)\b/gi,
-        "I'll be back in $1 $2")
+      en: 'For skills and subjects, say "good at", not "good in".',
+      ar: 'مع المهارات والمواد نقول good at وليس good in: She is good at maths.',
+      apply: rx(/\b(good|bad|great|excellent|terrible|better|best|worse)\s+in\s+(english|math|maths|science|sports?|football|cooking|languages?|writing|drawing|music|computers?|business|sales|numbers)\b/gi, '$1 at $2')
     },
     {
       id: 'in-time', type: 'error',
@@ -505,12 +495,6 @@
     },
 
     /* ---- Style upgrades (the sentence is fine, this sounds better) ---- */
-    {
-      id: 'get-by', type: 'style',
-      en: '"Can I pass?" is understandable, but people usually say "Could I get by, please?"',
-      ar: 'جملة Can I pass مفهومة، لكن الناس يقولون عادةً: Could I get by, please?',
-      apply: rx(/^(?:(?:excuse me|sorry)[,\s]*)?(?:can|could|may)\s+I\s+pass(?:\s+please)?\s*[?.!]?$/i, 'Excuse me, could I get by, please?')
-    },
     {
       id: 'polite-give', type: 'style', politeOnly: true,
       en: '"Give me…" can sound a little direct. "Could I have…, please?" is friendlier.',
