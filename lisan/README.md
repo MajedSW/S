@@ -1,122 +1,149 @@
-# Lisan · لسان — English speaking coach
+# Lisan · لسان — speak English with an AI partner who fills your gaps
 
 **The problem:** many Arabic speakers understand English and know the words,
-but freeze when they have to speak. They need somewhere safe to practise out
-loud, with someone who corrects their mistakes right away.
+but freeze when they have to speak. They need a partner who keeps them
+talking, catches the moment they get stuck and gives them what they're
+missing, without stopping the conversation to lecture them.
 
-**What Lisan does:** you talk through real situations (airport, plane, hotel,
-café, pharmacy, job interview…) with a character who answers you by voice.
-When you make a mistake, a coach shows the fix (✗ → ✓) with a short Arabic
-explanation. You say the corrected sentence out loud before moving on.
-Corrections are saved to **My phrases** for later practice.
+## What Lisan does
 
-Open `index.html` through any static web server (GitHub Pages works).
-It runs entirely in the browser and needs no build step and no backend.
+| | |
+|---|---|
+| **Follows the speaker** | A live AI partner (Claude) reacts to what you actually said, asks one easy question at a time, and adjusts to your level. Talk about anything (12 starter topics or your own), or role-play real situations: airport, hotel, pharmacy, job interview. |
+| **Fills the gap** | While you speak, Lisan watches the live transcript. Freeze on "…and I saw a big…" and a card offers the missing words (*shark's fin · زعنفة القرش*). Stay stuck and your partner asks out loud, "Do you mean a shark's fin?", then keeps listening so you can finish your sentence. "Yes" is enough to accept it. |
+| **Say it in Arabic** | Mid-sentence, tap **Arabic word**, say the word in Arabic, and get it back in English, spoken and on screen. Then carry on. |
+| **Corrects silently** | Your partner echoes your idea back in correct English inside its reply. Those words are underlined, so you notice them without being interrupted. Under your own bubble, a quiet **Polished** line shows the natural version, with **Why?** for a short Arabic explanation. |
+| **Knows your difficulties** | Every mistake type and every missing word goes into a local learner profile. Your partner is told your weak spots and recent words, so it models those structures and brings the words back in later conversations. **Progress → What Lisan noticed** shows the same picture. |
+| **Coaching report** | At the end: fluency, grammar, vocabulary and confidence scores, what went well, the patterns to work on (with Arabic tips), "say it better" rewrites and new words, all saved to your **Notebook**. |
+| **Works offline too** | Without AI, the 10 role-plays run as guided practice with an offline grammar coach tuned to common Arabic-speaker errors, and the say-it-again loop. |
 
-```
-python3 -m http.server 8000      # then open http://localhost:8000/lisan/
-```
-
-Voice input works in Chrome, Edge and Safari (desktop, Android and iOS).
-In other browsers you can type your answers.
+*Inspired by AI speaking tutors such as Loora (personal AI partner, any-topic
+conversation, real-time feedback, rephrasing, progress), plus the live
+gap-filling that the brief asked for. All content and code here are original.*
 
 ---
 
-## Project layout
+## Run it
+
+### With the AI partner (recommended)
+
+```bash
+cd lisan/server
+npm install
+ANTHROPIC_API_KEY=sk-ant-...  npm start          # → http://localhost:8787
+```
+
+Optional keys, also server-side only:
+
+| Variable | Adds |
+|---|---|
+| `OPENAI_API_KEY` | Premium neural voice for every line (`/api/tts`) **and** accurate cloud speech recognition (`/api/stt`) |
+| `ELEVENLABS_API_KEY` | Premium neural voice (used when there's no OpenAI key) |
+| `LISAN_MODEL` | Claude model id (default `claude-opus-5-5`) |
+| `PORT` | default `8787` |
+
+The browser never sees a key. The server builds every prompt itself from a
+small, validated context (`js/prompts.js`), so it can't be used as a relay for
+arbitrary prompts. It also rate-limits each client. Requests to Claude use
+Anthropic's server-side refusal fallback (`fallbacks: "default"`).
+
+**Deploy:** any Node host works (Render, Railway, Fly.io, a VPS). A Dockerfile
+is included: `docker build -f server/Dockerfile -t lisan .` from `lisan/`.
+Speech input needs HTTPS (or `localhost`).
+
+### Inside Claude
+
+Published as a claude.ai page, Lisan talks to Claude through the viewer's
+own account (the page's `sample` capability). No server or key is needed.
+That view can't use the microphone, so conversations there are typed.
+
+### Static only (GitHub Pages, any web server)
+
+Open `lisan/index.html` from any static host. Guided role-plays, the offline
+coach, device voices and speech input all work, and the AI partner shows as
+off.
+
+Voice input works in Chrome, Edge and Safari (desktop, Android, iOS).
+
+---
+
+## How it fits together
 
 ```
 lisan/
-├── index.html               app shell
-├── css/app.css              design tokens (light + dark) and components
+├── index.html
+├── css/app.css               design tokens (light + dark) and components
 ├── js/
-│   ├── voice-key.js         stable clip IDs (shared with the build tool)
-│   ├── voice.js             speech OUTPUT engine (pluggable providers)
-│   ├── listen.js            speech INPUT engine (device / cloud)
-│   ├── coach.js             grammar correction + answer matching (offline)
-│   ├── scenarios.js         all conversation content (pure data)
-│   └── app.js               screens, conversation flow, progress, settings
-├── voice/manifest.json      studio voice pack index (empty until built)
-├── tools/build-voice-pack.mjs  pre-records every line with a neural voice
-├── icons/, manifest.webmanifest  install to home screen
+│   ├── prompts.js            what the AI partner is told (shared by browser + server)
+│   ├── brain.js              AI providers: Lisan server → Claude (claude.ai) → offline
+│   ├── live.js               live conversation: streaming, gap filling, silent fixes, report
+│   ├── gap.js                notices freezes in the live transcript
+│   ├── learner.js            local learner profile (weak spots, missing words)
+│   ├── voice.js              speech OUT: studio clips → cloud neural → best device voice
+│   ├── listen.js             speech IN: device (live transcript) or cloud transcription
+│   ├── coach.js              offline grammar coach for guided mode
+│   ├── scenarios.js          role-plays and free-talk topics (pure data)
+│   └── app.js                screens, guided mode, notebook, progress, settings
+├── server/server.mjs         static app + /api/brain, /api/tts, /api/stt
+└── tools/build-voice-pack.mjs  pre-records the fixed lines of guided mode
 ```
+
+### A live turn, step by step
+
+1. **Partner speaks.** `/api/brain` streams the reply. `live.js` starts speaking
+   the first finished sentence while the rest is still arriving, so there is
+   little wait before you hear it.
+2. **You speak.** The device recognizer streams interim words. `GapWatch`
+   fires when you ask for a word ("how do you say…") or stall on an unfinished
+   sentence (last word *the / a / big / with…*). The `assist` task returns
+   options and a cue. If you stay silent, the cue is spoken: recognition is
+   paused, the partner talks, and recognition resumes with what you'd already
+   said kept.
+3. **In parallel:** the partner's next reply (`turn`, with silent recasts)
+   and an analysis of your sentence (`feedback` → polished line, fixes, new
+   words, learner profile).
+4. **At the end:** the `report` task.
+
+| Task | Used for | Returns |
+|---|---|---|
+| `turn` | the partner's reply | streamed text, then an `AR:` line |
+| `feedback` | silent analysis of one sentence | `{better, fixes[], gaps[], praise}` |
+| `assist` | gap filler when you freeze | `{options[], cue}` |
+| `translate` | Arabic word → English | `{options[], cue}` |
+| `hint` | "my mind went blank" | `{starters[]}` |
+| `report` | end-of-conversation coaching | scores, focus, words, rewrites |
 
 ## Voice quality: three upgrade paths
 
-The UI never calls a speech API directly. It calls
-`LisanVoice.speak(text, { role, gender })`, and the engine uses the best
-voice that can say that line, falling back automatically:
+The UI calls `LisanVoice.speak(text, {role, gender})`. The engine uses the best
+voice available and falls back automatically:
 
-| Priority | Provider | When it's used | Quality |
-|---|---|---|---|
-| 1 | **Studio voice pack** | the line exists in `voice/manifest.json` | best, works offline, no runtime cost |
-| 2 | **Cloud neural voice** | configured in Settings → *Connect a premium voice* | excellent, any sentence |
-| 3 | **Device voice** | always available | ranked: Natural / Neural / Premium / Siri voices first; novelty voices never |
+1. **Studio voice pack:** `node tools/build-voice-pack.mjs --provider openai`
+   pre-records every fixed guided-mode line (clips are keyed by text, so
+   reordering is safe).
+2. **Premium cloud voice:** for live AI replies and anything dynamic. It turns
+   on automatically when the server has `OPENAI_API_KEY` or
+   `ELEVENLABS_API_KEY`, or you can connect a provider in Settings.
+3. **Device voice:** the best built-in voice, ranked (Natural / Neural /
+   Premium / Siri first).
 
-Content refers to *voice profiles* (`us-female`, `us-male`, `gb-female`,
-`gb-male`, `coach-us`, `coach-gb`), never to concrete voices. Swapping voices
-means changing a mapping. Lessons and UI stay the same.
+Settings → **Clarity boost** applies a gentle EQ and compression chain to
+recorded and cloud voices.
 
-### 1. Build a studio voice pack (recommended)
+## Privacy
 
-```
-cd lisan
-OPENAI_API_KEY=sk-...  node tools/build-voice-pack.mjs --provider openai --accents us,gb
-# or
-ELEVENLABS_API_KEY=... node tools/build-voice-pack.mjs --provider elevenlabs
-```
+Progress, the learner profile and the notebook live in this browser's
+storage only. In live mode, the conversation text goes to Claude through
+your server or your Claude account. Audio goes to a cloud provider only if
+you turn on cloud listening.
 
-* Generates every fixed line: character lines, model answers and coach lines
-  (≈170 lines per accent, ~7k characters).
-* Each file is named by a hash of *voice profile + exact text*. If you edit or
-  reorder lines and re-run, only changed lines are generated. Until then, a
-  changed line falls back to the next provider.
-* `--dry-run` lists what would be generated, `--voices '{"us-female":"nova"}'`
-  overrides voices, and `--prune` removes clips that are no longer used.
-* Commit `voice/` and the app picks the clips up on the next load.
+## Extending
 
-### 2. Live cloud voice (covers dynamic sentences)
-
-The coach reads out *your own* corrected sentence, which can't be
-pre-recorded. In **Settings → Voice quality → Connect a premium voice**,
-choose OpenAI, ElevenLabs or **Your own server**:
-
-* `POST {text, profile, voice, accent, gender, lang, role}` → audio bytes.
-* Audio is cached in the browser (Cache Storage), so a line is paid for once.
-* Use the same voices as your studio pack and the switch between the two can't
-  be heard.
-* For a public deployment, use *Your own server* (a small proxy) so API keys
-  never reach the browser.
-
-### 3. Better speech recognition
-
-Settings → Listening → **Cloud** sends the recording to an OpenAI-compatible
-transcription endpoint (`gpt-4o-mini-transcribe` / Whisper). It handles
-accented speech much better than the device recognizer. The prompt asks it to
-keep the learner's mistakes, because the coach needs to hear exactly what was said.
-
-### Adding a provider
-
-A provider is an object with `available()`, `canSpeak(text, profile)` and
-`speak(text, profile, {rate, signal, onStart, onWord, onProgress})` returning a
-Promise. Add it to `Voice.providers` in `js/voice.js` at the priority you want.
-Playback goes through one shared `Player`, which applies an optional clarity
-chain (high-pass, presence lift, gentle compression) and real level metering
-for the speaking orb.
-
-## Content
-
-* **Add a scenario:** append an object to `SCENARIOS` in `js/scenarios.js`.
-  The field reference is at the top of that file. Re-run the voice pack
-  builder.
-* **Add a grammar rule:** append `{ id, type:'error'|'style', en, ar, apply }`
-  to `RULES` in `js/coach.js`. Rules target common Arabic-speaker
-  errors, for example: missing *am / is / are*, *since two days*,
-  *open the light*, *I have 25 years*, *I have headache*, *more better*,
-  *discuss about* and *explain me*.
-
-## Where a full AI conversation would plug in
-
-`Talk.prototype.onAnswer` in `js/app.js` is the single place that decides the
-reply. Today it follows a scripted scenario, with the offline coach doing the
-correcting. An LLM-backed partner would replace the next-line choice there.
-The voice and listening layers stay as they are.
+* **Role-play:** add an object to `SCENARIOS` in `js/scenarios.js`. In live
+  mode its turns become story beats for the AI. In guided mode they're the
+  script.
+* **Topic:** add `{id, en, ar, icon, angle}` to `TOPICS`.
+* **Partner behaviour:** edit `PARTNER_CORE` and the task prompts in
+  `js/prompts.js`. The server and claude.ai both use it.
+* **Offline grammar rule:** add `{id, type, en, ar, apply}` to `RULES` in
+  `js/coach.js`.

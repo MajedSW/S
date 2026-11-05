@@ -45,6 +45,14 @@
     let speechStart = 0;
 
     function stopThis() { if (self.rec === rec) self.stop(); }
+    // End-of-speech check that respects hold(): a gap-filler hint on screen
+    // keeps the mic open while the learner reads it.
+    function silenceCheck() {
+      const wait = (self.holdUntil || 0) - performance.now();
+      if (wait > 0) { silenceT = setTimeout(silenceCheck, wait); return; }
+      stopThis();
+    }
+    self.holdUntil = 0;
     function clearAll() { clearTimeout(silenceT); clearTimeout(noSpeechT); clearTimeout(maxT); clearTimeout(stopT); }
     this._kill = function () { finished = true; clearAll(); };
 
@@ -96,7 +104,7 @@
       o.onPartial && o.onPartial(text);
       clearTimeout(noSpeechT);
       clearTimeout(silenceT);
-      silenceT = setTimeout(stopThis, o.patienceMs || 1800);
+      silenceT = setTimeout(silenceCheck, o.patienceMs || 1800);
     };
     rec.onspeechstart = function () { speechStart = speechStart || performance.now(); self.energy = Math.min(1, self.energy + 0.3); };
     rec.onsoundstart = function () { self.energy = Math.min(1, self.energy + 0.2); };
@@ -195,7 +203,7 @@
       self.lvl = Math.min(1, r * 6);
       const now = performance.now();
       if (r > 0.035) { if (!speaking) { speaking = true; startedSpeech = now; } lastVoice = now; }
-      if (speaking && now - lastVoice > (o.patienceMs || 1800)) return self.stop();
+      if (speaking && now - lastVoice > (o.patienceMs || 1800) && now > (self.holdUntil || 0)) return self.stop();
       if (!speaking && now - t0 > (o.noSpeechMs || 9000)) return self.stop();
       if (now - t0 > (o.maxMs || 45000)) return self.stop();
       raf = requestAnimationFrame(loop);
@@ -287,6 +295,8 @@
       eng.start(opts);
     },
     stop: function () { if (this.active) this.active.stop(); },
+    /** Keep listening through silence for at least `ms` more milliseconds. */
+    hold: function (ms) { if (this.active) this.active.holdUntil = performance.now() + (ms || 0); },
     cancel: function () { if (this.active) { this.active.cancel(); this.active = null; } },
     isListening: function () { return !!this.active; },
     level: function () { return this.active ? this.active.level() : 0; }

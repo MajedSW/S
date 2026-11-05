@@ -1,0 +1,17 @@
+{
+  "name": "lisan-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serves Lisan and its AI partner; API keys stay on the server.",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.5.0"
+  }
+}

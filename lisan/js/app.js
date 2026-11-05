@@ -68,7 +68,18 @@
     info: '<circle cx="12" cy="12" r="9.5"/><path d="M12 16v-4.5M12 8h.01"/>',
     alert: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
     headphones: '<path d="M3.5 18v-6a8.5 8.5 0 0 1 17 0v6"/><path d="M20.5 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3.5 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-3z"/>',
-    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    waves: '<path d="M2 7.5c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/><path d="M2 12.5c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/><path d="M2 17.5c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/>',
+    calendar: '<rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/>',
+    utensils: '<path d="M5 2.5v8a2 2 0 0 0 2 2v9M9 2.5v8a2 2 0 0 1-2 2M7 2.5v6"/><path d="M17.5 21.5v-19c-2 1-3.5 3.5-3.5 7.5v3h3.5"/>',
+    heart: '<path d="M20.8 5.6a5.4 5.4 0 0 0-7.7 0L12 6.7l-1.1-1.1a5.4 5.4 0 0 0-7.7 7.7L12 22l8.8-8.7a5.4 5.4 0 0 0 0-7.7z"/>',
+    ball: '<circle cx="12" cy="12" r="9.5"/><path d="m12 7.5 4.3 3.1-1.6 5H9.3l-1.6-5z"/><path d="M12 2.5v5M16.3 10.6l4.7-1.5M14.7 15.6l2.9 4M9.3 15.6l-2.9 4M7.7 10.6 3 9.1"/>',
+    film: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M7.5 3v18M16.5 3v18M3 8h4.5M3 12h18M3 16h4.5M16.5 8H21M16.5 16H21"/>',
+    building: '<path d="M3.5 21.5h17M5.5 21.5v-17a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v17M14.5 9.5h3a1 1 0 0 1 1 1v11"/><path d="M8.5 7.5h3M8.5 11h3M8.5 14.5h3"/>',
+    phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+    flag: '<path d="M5 21.5v-18"/><path d="M5 4h12.5l-2.2 4.2 2.2 4.3H5"/>',
+    chat: '<path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.1A8.5 8.5 0 1 1 21 12z"/>'
   };
   function icon(n, cls) { return '<svg class="ic ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '') + '</svg>'; }
 
@@ -115,7 +126,8 @@
           onboarded: false, level: 'Beginner', accent: 'us', rate: 0.95, arabic: 'show',
           patience: 'normal', autoListen: false, sounds: true, theme: 'system', goalMin: 5, fx: true,
           stt: 'device', cloud: { kind: 'off', apiKey: '', endpoint: '', sttEndpoint: '', model: '', voices: {} },
-          deviceVoices: { female: '', male: '' }
+          deviceVoices: { female: '', male: '' },
+          partner: 'female', spokenCues: true, gapSpeed: 'normal'
         },
         progress: { days: {}, scenarios: {}, totals: { sentences: 0, fixes: 0, convos: 0, sec: 0 } },
         phrases: []
@@ -149,14 +161,20 @@
     const root = document.documentElement;
     if (s.theme === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', s.theme);
     const c = s.cloud || {};
+    // A Lisan server with voice keys supplies premium voice and listening
+    // automatically, unless the user connected their own provider.
+    const srv = window.LisanBrain && window.LisanBrain.server;
+    const useServer = (c.kind || 'off') === 'off' && srv;
     V.configure({
       accent: s.accent, rate: s.rate, fx: s.fx,
-      cloud: { kind: c.kind, apiKey: c.apiKey, endpoint: c.endpoint, model: c.model, voices: expandVoices(c.voices) },
+      cloud: useServer && srv.tts ? { kind: 'custom', endpoint: 'api/tts', voices: {} } :
+        { kind: c.kind, apiKey: c.apiKey, endpoint: c.endpoint, model: c.model, voices: expandVoices(c.voices) },
       deviceVoices: s.deviceVoices
     });
     let sttCloud = { kind: 'off' };
     if (c.kind === 'openai' && c.apiKey) sttCloud = { kind: 'openai', apiKey: c.apiKey };
     else if (c.kind === 'custom' && c.sttEndpoint) sttCloud = { kind: 'custom', endpoint: c.sttEndpoint, apiKey: c.apiKey };
+    else if (useServer && srv.stt) sttCloud = { kind: 'custom', endpoint: 'api/stt' };
     L.configure({ engine: s.stt, patienceMs: PATIENCE[s.patience] || 1900, lang: s.accent === 'gb' ? 'en-GB' : 'en-US', cloud: sttCloud });
     S.enabled = !!s.sounds;
   }
@@ -209,6 +227,13 @@
       p.scenarios[r.id] = rec;
       p.totals.convos += 1;
       p.totals.fixes += r.fixedOk;
+      Store.save();
+    },
+    /** A free conversation (no scenario score). */
+    recordLive: function (fixes) {
+      const p = Store.data.progress;
+      p.totals.convos += 1;
+      p.totals.fixes += fixes || 0;
       Store.save();
     }
   };
@@ -280,11 +305,13 @@
 
   const Router = {
     cur: null,
+    leave: null,     // cleanup for the screen being left (set by talk / live)
+    screens: {},     // filled in at boot
     go: function (name, arg) {
-      if (this.cur === 'talk' && name !== 'talk' && activeTalk) { activeTalk.destroy(); activeTalk = null; }
+      if (this.leave) { const l = this.leave; this.leave = null; try { l(); } catch (e) { /* cleanup error */ } }
       $$('.screen').forEach(function (s) { s.classList.toggle('active', s.id === 's-' + name); });
       this.cur = name;
-      ({ onb: renderOnboarding, home: renderHome, brief: renderBrief, talk: startTalk, summary: renderSummary })[name](arg);
+      this.screens[name](arg);
     }
   };
 
@@ -373,7 +400,7 @@
     this.turnHinted = false;
     this.reprompted = false;
     this.repeat = null;
-    this.typing = !L.supported();
+    this.typing = !L.supported() || !!(window.claude && typeof window.claude.use === 'function');
     this.alive = true;
     this.t0 = Date.now();
     this.stats = { answers: 0, clean: 0, hints: 0, words: 0, speakMs: 0, fixes: [], fixedOk: 0 };
@@ -863,6 +890,7 @@
     this.scrollDown();
 
     this.stats.fixes.push({ from: a.said, to: a.corrected, ar: a.issues[0].ar, ok: false });
+    if (window.LisanLearner) a.issues.forEach(function (r) { window.LisanLearner.recordRuleFix(r.id, a.said, a.corrected); });
     Phrases.add({ en: a.corrected, ar: '', note: a.issues[0].ar, scenario: this.sc.id, kind: 'fix' });
     this.repeat = {
       target: a.corrected, focus: C.focusTokens(a.said, a.corrected),
@@ -1031,9 +1059,9 @@
             '<div class="line right"><span class="mark">' + icon('check') + '</span><span class="txt">I <ins class="i">have</ins> <ins class="i">lived</ins> here <ins class="i">for</ins> five years.</span></div>' +
           '</div>' +
           '<div class="steps-list">' +
-            '<div class="step"><span class="n">' + icon('headphones') + '</span><div><b>Talk through real situations</b><span>Ten scenes with characters who answer you back.</span></div></div>' +
-            '<div class="step"><span class="n">' + icon('sparkle') + '</span><div><b>Instant corrections, explained in Arabic</b><span>Tuned to the mistakes Arabic speakers make most.</span></div></div>' +
-            '<div class="step"><span class="n">' + icon('redo') + '</span><div><b>Say it right, out loud</b><span>Repeat the fix until it sticks. Your phrases are saved.</span></div></div>' +
+            '<div class="step"><span class="n">' + icon('chat') + '</span><div><b>Talk about anything</b><span>An AI partner who follows what you say, or role-plays at the airport, the hotel, at work.</span></div></div>' +
+            '<div class="step"><span class="n">' + icon('sparkle') + '</span><div><b>Freeze mid-sentence? Get the missing word</b><span>Lisan notices the pause and offers the word. Or say it in Arabic and get it back in English.</span></div></div>' +
+            '<div class="step"><span class="n">' + icon('check') + '</span><div><b>Mistakes fixed while you talk</b><span>Your partner echoes it back correctly, with a short Arabic explanation when you want it.</span></div></div>' +
           '</div>' +
         '</div></div>' +
         '<div class="foot"><button class="btn btn-primary btn-block" data-go="1">Get started ·<span class="ar inl">ابدأ</span></button></div>';
@@ -1078,6 +1106,64 @@
     };
   }
 
+  /* --- AI partner ------------------------------------------------- */
+  const Brain = window.LisanBrain;
+  const Learner = window.LisanLearner;
+  const TOPICS = CONTENT.TOPICS || [];
+  const PARTNER_NAMES = { 'us-female': 'Maya', 'us-male': 'Noah', 'gb-female': 'Amelia', 'gb-male': 'Oliver' };
+  function partnerPersona() {
+    const s = settings(), g = s.partner === 'male' ? 'male' : 'female';
+    return { name: PARTNER_NAMES[s.accent + '-' + g] || 'Maya', role: 'Your conversation partner', roleAr: 'شريكك في المحادثة', gender: g };
+  }
+  function liveFromTopic(t, own) {
+    const label = own || t.en;
+    return {
+      mode: 'free', title: label, topicLabel: label, topic: label, angle: t ? t.angle : '',
+      place: 'Free conversation · ' + label, persona: partnerPersona(), tint: 'var(--brand)', maxTurns: 9
+    };
+  }
+  function liveFromScenario(sc) {
+    return {
+      mode: 'roleplay', scenarioId: sc.id, title: sc.title, topicLabel: sc.title, place: sc.place,
+      mission: sc.mission.en, beats: sc.turns.map(function (t) { return t.ai.en; }), outro: sc.outro.en,
+      persona: sc.persona, tint: sc.tint, maxTurns: sc.turns.length + 2
+    };
+  }
+  function startLive(cfg) { V.unlock(); window.LisanLive.start(cfg); }
+  function aiHelp() {
+    modal({
+      title: 'Turn on the AI partner',
+      html: '<p class="muted">Free conversation and live gap-filling need Claude. There are two ways:</p>' +
+        '<p><b>1. Run Lisan’s server.</b> In the <code>lisan/server</code> folder run <code>npm install</code>, then start it with your Anthropic API key: <code>ANTHROPIC_API_KEY=… npm start</code>. Open the address it prints.</p>' +
+        '<p><b>2. Open Lisan inside Claude.</b> As a claude.ai page, Lisan uses your own Claude account.</p>' +
+        '<p class="ar muted">للمحادثة الحرة تحتاج إلى خادم لسان مع مفتاح Anthropic، أو فتح لسان داخل Claude. التمارين الموجّهة تعمل بدون إنترنت.</p>',
+      actions: [{ label: 'OK', kind: 'btn-primary' }]
+    });
+  }
+  let showAllTopics = false;
+  function aiSection() {
+    const st = Brain.state, p = partnerPersona();
+    if (st === 'detecting') {
+      return '<section class="ai-card"><div class="ai-top"><span class="ai-orb dim"></span><div class="grow"><b>Connecting your AI partner…</b><div class="shimmer-lines"><i></i></div></div></div></section>';
+    }
+    if (st !== 'ready') {
+      return '<section class="ai-card off"><div class="ai-top"><span class="ai-orb dim"></span><div><b>AI conversation partner</b><span>Off on this device<span class="ar inl">غير مفعّل</span></span></div></div>' +
+        '<p class="small muted">Free conversation with live gap-filling needs Claude. The role-plays below work offline in guided mode.</p>' +
+        '<button class="btn btn-soft" data-act="ai-help">' + icon('info', 'sm') + 'How to turn it on</button></section>';
+    }
+    const list = showAllTopics ? TOPICS : TOPICS.slice(0, 6);
+    return '<section class="ai-card"><div class="ai-top"><span class="ai-orb"></span><div><b>Talk with ' + esc(p.name) + '</b>' +
+        '<span>Any topic. When you get stuck, ' + esc(p.name) + ' fills the gap.</span>' +
+        '<span class="ar">تحدّث عن أي موضوع، وعندما تتوقف أكمل لك الكلمة الناقصة.</span></div></div>' +
+      '<div class="topic-grid">' + list.map(function (t) {
+        return '<button class="topic" data-topic="' + t.id + '">' + icon(t.icon, 'sm') + '<span><b>' + esc(t.en) + '</b><span class="ar">' + esc(t.ar) + '</span></span></button>';
+      }).join('') + '</div>' +
+      (showAllTopics ? '' : '<button class="link-btn more-topics" data-act="more-topics">More topics' + icon('chev', 'xs') + '</button>') +
+      '<form class="topic-own" data-own autocomplete="off"><input id="own-topic" type="text" maxlength="80" placeholder="Or any topic you like…" aria-label="Your own topic" dir="auto">' +
+        '<button class="btn btn-primary" type="submit">' + icon('mic', 'sm') + 'Talk</button></form>' +
+    '</section>';
+  }
+
   /* --- Home --- */
   let homeTab = 'practice';
   function greeting() {
@@ -1098,11 +1184,12 @@
         '<button class="icon-btn" data-act="settings" aria-label="Settings">' + icon('sliders') + '</button></div>' +
       '<div class="scroll"><div class="home-body">' + body + '</div></div>' +
       '<nav class="tabbar">' +
-        [['practice', 'home', 'Practice'], ['phrases', 'book', 'Phrases'], ['progress', 'chart', 'Progress']].map(function (t) {
+        [['practice', 'home', 'Practice'], ['phrases', 'book', 'Notebook'], ['progress', 'chart', 'Progress']].map(function (t) {
           return '<button class="tab' + (homeTab === t[0] ? ' active' : '') + '" data-tab="' + t[0] + '"' + (homeTab === t[0] ? ' aria-current="page"' : '') + '>' + icon(t[1]) + t[2] + '</button>';
         }).join('') +
       '</nav>';
     el.onclick = onHomeClick;
+    el.onsubmit = onHomeSubmit;
   }
 
   function scenarioRow(s) {
@@ -1123,8 +1210,9 @@
     const left = Math.max(0, Math.ceil(goal - mins));
     let html =
       '<div class="greet"><h1 class="display">' + g[0] + '</h1><p>Ready to say it out loud?<span class="ar inl">' + g[1] + '</span></p></div>' +
+      aiSection() +
       '<div class="today" style="--tint:' + rec.tint + '">' +
-        '<div class="t-label"><span class="eyebrow">Today’s conversation</span><span class="chip">' + esc(rec.level) + '</span></div>' +
+        '<div class="t-label"><span class="eyebrow">Today’s role-play</span><span class="chip">' + esc(rec.level) + '</span></div>' +
         '<div class="t-main"><div class="t-title">' + esc(rec.title) + '</div>' +
           '<div class="t-meta">with ' + esc(rec.persona.name) + ', ' + esc(rec.persona.role.toLowerCase()) + ' · ' + rec.minutes + ' min</div>' +
           '<div class="t-meta">' + (left ? left + ' min left to reach today’s goal' : 'Daily goal reached. Nice work!') + '</div></div>' +
@@ -1140,15 +1228,41 @@
     return html;
   }
 
+  let notebookView = 'phrases';
+  function homeWords() {
+    const words = Learner.data.words;
+    if (!words.length) {
+      return '<div class="group"><div class="empty">' + icon('star') + '<h3>No words yet</h3><p>Every word you were missing in a conversation lands here, so you can practise it and your partner can reuse it.</p>' +
+        '<p class="ar">كل كلمة احتجتها أثناء المحادثة ستُحفظ هنا.</p></div></div>';
+    }
+    return '<div class="group">' + words.map(function (w) {
+      return '<div class="phrase" data-wid="' + w.id + '">' +
+        '<div class="p-body"><span class="p-en">' + esc(w.en) + '</span>' + (w.ar ? '<span class="p-ar ar">' + esc(w.ar) + '</span>' : '') +
+        '<span class="p-src">' + (w.source ? esc(w.source) + ' · ' : '') + (w.seen > 1 ? 'needed ' + w.seen + ' times' : 'new') + '</span>' +
+        '<span class="p-result" hidden></span></div>' +
+        '<div class="p-actions">' +
+          '<button class="icon-btn" data-pact="play" aria-label="Listen">' + icon('volume', 'sm') + '</button>' +
+          '<button class="icon-btn" data-pact="say" aria-label="Practice saying it">' + icon('mic', 'sm') + '</button>' +
+          '<button class="icon-btn" data-pact="del" aria-label="Remove">' + icon('trash', 'sm') + '</button>' +
+        '</div></div>';
+    }).join('') + '</div>';
+  }
   function homePhrases() {
     const list = Store.data.phrases;
+    const head = '<div class="greet"><h1 class="display">Notebook</h1><p>Practise what you were missing. Tap the mic to say it.</p></div>' +
+      '<div class="seg wide" data-nview><button data-v="phrases" class="' + (notebookView === 'phrases' ? 'on' : '') + '">Phrases · ' + list.length + '</button>' +
+      '<button data-v="words" class="' + (notebookView === 'words' ? 'on' : '') + '">Words · ' + Learner.data.words.length + '</button></div>';
+    if (notebookView === 'words') return head + homeWords();
+    return head + homePhrasesList();
+  }
+  function homePhrasesList() {
+    const list = Store.data.phrases;
     if (!list.length) {
-      return '<div class="greet"><h1 class="display">My phrases</h1><p>Every sentence you fix is saved here to practice.</p></div>' +
+      return '' +
         '<div class="group"><div class="empty">' + icon('book') + '<h3>No phrases yet</h3><p>Finish a conversation. Corrections and new phrases will appear here.</p>' +
         '<p class="ar">ستظهر هنا الجمل التي صحّحتها لتتدرّب عليها.</p></div></div>';
     }
-    return '<div class="greet"><h1 class="display">My phrases</h1><p>' + list.length + ' saved · tap the mic to practice saying one.</p></div>' +
-      '<div class="group">' + list.map(function (p) {
+    return '<div class="group">' + list.map(function (p) {
         const sc = scenarioById(p.scenario);
         const kind = { fix: 'Corrected', model: 'Model answer', style: 'More natural', key: 'Key phrase' }[p.kind] || '';
         return '<div class="phrase" data-id="' + p.id + '">' +
@@ -1188,9 +1302,26 @@
           return '<div class="bar' + (mins[i] >= s.goalMin ? ' met' : '') + (i === 6 ? ' is-today' : '') + '"><i style="height:' + Math.max(3, h).toFixed(1) + '%"></i><small>' + names[x.getDay()] + '</small></div>';
         }).join('') + '</div>' +
         '<div class="week-foot"><span>Dashed line: ' + s.goalMin + '-minute daily goal</span><span>' + mins.filter(function (m) { return m >= s.goalMin; }).length + '/7 days</span></div></div>' +
-      '<section class="section"><div class="section-head"><h2>Conversations</h2><span class="muted small">' + done.length + ' of ' + SCENARIOS.length + '</span></div>' +
+      noticedSection() +
+      '<section class="section"><div class="section-head"><h2>Role-plays</h2><span class="muted small">' + done.length + ' of ' + SCENARIOS.length + '</span></div>' +
         '<div class="group">' + (done.length ? done.map(scenarioRow).join('') :
           '<div class="empty">' + icon('trophy') + '<h3>Your scores will show here</h3><p>Finish your first conversation to see how you did.</p></div>') + '</div></section>';
+  }
+
+  const WEAK_AR = {
+    grammar: 'القواعد', tense: 'أزمنة الأفعال', article: 'أدوات التعريف (a / an / the)', preposition: 'حروف الجر',
+    word_choice: 'اختيار الكلمة المناسبة', missing_word: 'الكلمات الصغيرة الناقصة', word_order: 'ترتيب الكلمات',
+    vocabulary: 'المفردات', plural: 'الجمع', other: 'الدقة العامة'
+  };
+  function noticedSection() {
+    const weak = Learner.weakSpots(4);
+    const top = weak.length ? weak[0].count : 1;
+    return '<section class="section"><div class="section-head"><h2>What Lisan noticed</h2><span class="ar">ما لاحظه لسان</span></div>' +
+      '<div class="group">' + (weak.length ? weak.map(function (w) {
+        return '<div class="weak-row"><div class="wr-top"><b>' + esc(w.label.charAt(0).toUpperCase() + w.label.slice(1)) + '</b><span class="ar">' + esc(WEAK_AR[w.type] || '') + '</span><span class="wr-n">' + w.count + '</span></div>' +
+          '<div class="meter-bar"><i style="width:' + Math.round((w.count / top) * 100) + '%"></i></div></div>';
+      }).join('') : '<div class="empty">' + icon('target') + '<h3>Nothing yet</h3><p>Talk a little and Lisan will learn which patterns trip you up.</p></div>') + '</div>' +
+      '<p class="note" style="padding-inline:4px">Your partner uses these to adapt each conversation. ' + Learner.data.words.length + ' words in your notebook.</p></section>';
   }
 
   let phrasePractice = null;
@@ -1200,21 +1331,44 @@
     const sc = e.target.closest('[data-sc]');
     if (sc) { Router.go('brief', sc.dataset.sc); return; }
     if (e.target.closest('[data-act="settings"]')) { openSettings(); return; }
+    if (e.target.closest('[data-act="ai-help"]')) { aiHelp(); return; }
+    if (e.target.closest('[data-act="more-topics"]')) { showAllTopics = true; renderHome(); return; }
+    const tp = e.target.closest('[data-topic]');
+    if (tp) {
+      const t = TOPICS.find(function (x) { return x.id === tp.dataset.topic; });
+      if (t) startLive(liveFromTopic(t));
+      return;
+    }
+    const nv = e.target.closest('[data-nview] button');
+    if (nv) { notebookView = nv.dataset.v; L.cancel(); renderHome(); return; }
     const pa = e.target.closest('[data-pact]');
     if (pa) {
       const row = pa.closest('.phrase');
-      const ph = Store.data.phrases.find(function (x) { return x.id === row.dataset.id; });
+      const isWord = !!row.dataset.wid;
+      const ph = isWord ? Learner.data.words.find(function (x) { return x.id === row.dataset.wid; })
+        : Store.data.phrases.find(function (x) { return x.id === row.dataset.id; });
       if (!ph) return;
       const act = pa.dataset.pact;
       if (act === 'play') V.speak(ph.en, { role: 'coach' });
-      else if (act === 'del') { Phrases.remove(ph.id); renderHome(); toast('Phrase removed'); }
-      else if (act === 'say') practicePhrase(ph, row, pa);
+      else if (act === 'del') {
+        if (isWord) Learner.removeWord(ph.id); else Phrases.remove(ph.id);
+        renderHome(); toast(isWord ? 'Word removed' : 'Phrase removed');
+      } else if (act === 'say') practicePhrase(ph, row, pa);
     }
+  }
+  function onHomeSubmit(e) {
+    const f = e.target.closest('[data-own]');
+    if (!f) return;
+    e.preventDefault();
+    const v = $('#own-topic').value.trim();
+    if (!v) { $('#own-topic').focus(); return; }
+    startLive(liveFromTopic(null, v));
   }
 
   function practicePhrase(ph, row, btn) {
     const out = $('.p-result', row);
     if (phrasePractice === ph.id) { L.stop(); return; }
+    if (phrasePractice) { toast('Finish the one you’re practising first.'); return; }
     if (!L.supported()) { toast('Voice input isn’t available in this browser.'); return; }
     V.stop();
     phrasePractice = ph.id;
@@ -1243,11 +1397,12 @@
     const el = $('#s-brief');
     const p = sc.persona;
     const phrases = sc.turns.map(function (t) { return t.model; }).filter(Boolean).slice(0, 5);
+    const ai = Brain.available();
     el.style.setProperty('--tint', sc.tint);
     el.innerHTML =
       '<div class="topbar"><button class="icon-btn" data-act="back" aria-label="Back">' + icon('back') + '</button><div class="grow"></div>' +
         '<span class="chip">' + esc(sc.level) + ' · ' + sc.minutes + ' min</span></div>' +
-      '<div class="scroll"><div class="brief-body">' +
+      '<div class="scroll"><div class="brief-body' + (ai ? ' tall' : '') + '">' +
         '<div class="brief-hero"><span class="tile">' + icon(sc.icon) + '</span>' +
           '<div><h1 class="display">' + esc(sc.title) + '</h1><div class="ar ar-title">' + esc(sc.titleAr) + '</div></div>' +
           '<div class="persona-line"><span class="avatar">' + esc(p.name.charAt(0)) + '</span><div><b>' + esc(p.name) + '</b><div class="muted small">' + esc(p.role) + ' · <span class="ar">' + esc(p.roleAr) + '</span></div></div></div>' +
@@ -1259,14 +1414,22 @@
               '<div class="p-actions"><button class="icon-btn" data-say="' + i + '" aria-label="Listen">' + icon('volume', 'sm') + '</button>' +
               '<button class="icon-btn" data-save="' + i + '" aria-label="Save phrase">' + icon('star', 'sm') + '</button></div></div>';
           }).join('') + '</div></section>' +
-        '<div class="tip-card"><div class="tc-body"><div class="tc-label">How it works</div>' +
-          '<div class="small">Answer ' + esc(p.name) + ' out loud. If you make a mistake, the coach shows the fix and you say it again. Stuck? Tap <b>Help</b>.</div>' +
-          '<div class="tc-ar ar">أجب بصوتك. إذا أخطأت سيظهر لك التصحيح لتعيد الجملة. إذا توقفت اضغط "Help".</div></div></div>' +
+        (ai ?
+          '<div class="tip-card"><div class="tc-body"><div class="tc-label">Live conversation</div>' +
+            '<div class="small">Talk naturally with ' + esc(p.name) + '. If you freeze, Lisan offers the missing word, and says it if you need. Mistakes are fixed quietly while you talk.</div>' +
+            '<div class="tc-ar ar">تحدّث بشكل طبيعي. إذا توقفت يقترح لك لسان الكلمة الناقصة، وتُصحَّح أخطاؤك بهدوء أثناء الحديث.</div></div></div>' :
+          '<div class="tip-card"><div class="tc-body"><div class="tc-label">How it works</div>' +
+            '<div class="small">Answer ' + esc(p.name) + ' out loud. If you make a mistake, the coach shows the fix and you say it again. Stuck? Tap <b>Help</b>.</div>' +
+            '<div class="tc-ar ar">أجب بصوتك. إذا أخطأت سيظهر لك التصحيح لتعيد الجملة. إذا توقفت اضغط "Help".</div></div></div>') +
       '</div></div>' +
-      '<div class="foot"><button class="btn btn-primary btn-block" data-act="start">' + icon('mic', 'sm') + 'Start conversation</button></div>';
+      (ai ?
+        '<div class="foot stack"><button class="btn btn-primary btn-block" data-act="live">' + icon('mic', 'sm') + 'Start live conversation</button>' +
+          '<button class="btn btn-soft btn-block" data-act="start">Guided practice, step by step</button></div>' :
+        '<div class="foot"><button class="btn btn-primary btn-block" data-act="start">' + icon('mic', 'sm') + 'Start conversation</button></div>');
     el.onclick = function (e) {
       if (e.target.closest('[data-act="back"]')) { V.stop(); Router.go('home'); return; }
       if (e.target.closest('[data-act="start"]')) { V.unlock(); Router.go('talk', sc.id); return; }
+      if (e.target.closest('[data-act="live"]')) { startLive(liveFromScenario(sc)); return; }
       const say = e.target.closest('[data-say]');
       if (say) { V.speak(phrases[+say.dataset.say].en, { role: 'coach' }); return; }
       const save = e.target.closest('[data-save]');
@@ -1367,7 +1530,19 @@
         (last === id ? '<span class="chip brand">in use</span>' : '') + '</div>';
     };
     const sttCloudOk = (c.kind === 'openai' && c.apiKey) || (c.kind === 'custom' && c.sttEndpoint);
+    const prov = Brain.provider;
     $('#sheet .scroll').innerHTML =
+      '<div class="set-group"><span class="eyebrow">AI partner</span><div class="set">' +
+        '<div class="engine' + (prov ? ' active' : '') + '"><span class="e-dot"></span><div class="s-body"><b>' +
+          (prov ? (prov.id === 'server' ? 'Lisan server' : 'Claude in this page') : (Brain.state === 'detecting' ? 'Connecting…' : 'Off')) + '</b><span>' +
+          esc(prov ? (prov.id === 'server' ? 'Claude · ' + (Brain.server.model || '') : 'Uses your Claude account') : 'Guided role-plays work offline.') + '</span></div>' +
+          (prov ? '<span class="chip brand">on</span>' : '<button class="btn btn-ghost" data-do="ai-help">Set up</button>') + '</div>' +
+        '<div class="set-row"><div class="s-body"><b>Partner</b><span>Who you talk to in free conversation</span></div>' +
+          seg('partner', [['female', PARTNER_NAMES[s.accent + '-female']], ['male', PARTNER_NAMES[s.accent + '-male']]], s.partner) + '</div>' +
+        '<div class="set-row"><div class="s-body"><b>Say the missing word</b><span>If you stay stuck, your partner says it out loud</span></div>' + sw('spokenCues', s.spokenCues !== false, 'set-cues') + '</div>' +
+        '<div class="set-row"><div class="s-body"><b>Notice when I freeze</b><span>How fast to offer words</span></div>' +
+          seg('gapSpeed', [['quick', 'Quick'], ['normal', 'Normal'], ['relaxed', 'Relaxed']], s.gapSpeed) + '</div>' +
+      '</div></div>' +
       '<div class="set-group"><span class="eyebrow">Voice</span><div class="set">' +
         '<div class="set-row"><div class="s-body"><b>Accent</b><span>Characters and coach</span></div>' + seg('accent', [['us', 'American'], ['gb', 'British']], s.accent) + '</div>' +
         '<div class="set-row col"><div class="s-body"><b>Speaking speed · <span id="rate-val">' + Math.round(s.rate * 100) + '%</span></b><span>Slower speech is easier to follow</span></div>' +
@@ -1454,6 +1629,7 @@
       }
       const d = e.target.closest('[data-do]');
       if (!d) return;
+      if (d.dataset.do === 'ai-help') { closeSettings(); aiHelp(); return; }
       if (d.dataset.do === 'test') {
         V.unlock();
         V.speak('Hi! This is how I sound. Take your time, and let’s practice together.', { role: 'persona', gender: 'female' })
@@ -1480,6 +1656,7 @@
               Store.data = Store.defaults();
               Store.data.settings = keep;
               Store.save();
+              Learner.reset();
               renderSettings();
               toast('Progress reset');
             }
@@ -1504,10 +1681,28 @@
   /* ------------------------------------------------------------------ *
    * Boot
    * ------------------------------------------------------------------ */
+  window.LisanUI = {
+    esc: esc, icon: icon, wordSpans: wordSpans, markWord: markWord, clearMarks: clearMarks, arHtml: arHtml,
+    toast: toast, modal: modal, Router: Router, Progress: Progress, Phrases: Phrases, Orb: Orb, ringSvg: ringSvg,
+    settings: settings, save: function () { Store.save(); }
+  };
+
   function boot() {
     Store.load();
+    Router.screens = {
+      onb: renderOnboarding, home: renderHome, brief: renderBrief, summary: renderSummary,
+      talk: function (id) { startTalk(id); Router.leave = function () { if (activeTalk) { activeTalk.destroy(); activeTalk = null; } }; },
+      live: function (t) { window.LisanLive.mount(t); Router.leave = window.LisanLive.leave; },
+      report: function (d) { window.LisanLive.renderReport(d); }
+    };
     applySettings();
     bindSettings();
+    Brain.onChange(function () {
+      applySettings();
+      if (Router.cur === 'home') renderHome();
+      if ($('#sheet').classList.contains('open')) renderSettings();
+    });
+    Brain.init();
     V.device.onvoices = function () { if ($('#sheet').classList.contains('open')) renderSettings(); };
     // First gesture unlocks audio on iOS / Safari.
     const unlock = function () { V.unlock(); window.removeEventListener('pointerdown', unlock, true); };
@@ -1522,6 +1717,6 @@
     Router.go(settings().onboarded ? 'home' : 'onb');
   }
 
-  window.Lisan = { Store: Store, Router: Router, Progress: Progress, scenarios: SCENARIOS };
+  window.Lisan = { Store: Store, Router: Router, Progress: Progress, scenarios: SCENARIOS, startLive: startLive, liveFromTopic: liveFromTopic, topics: TOPICS };
   boot();
 })();

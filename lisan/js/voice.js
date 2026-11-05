@@ -339,6 +339,7 @@
   };
   CloudProvider.prototype.describe = function () {
     if (!this.available()) return 'Off';
+    if (this.cfg.kind === 'custom' && this.cfg.endpoint === 'api/tts') return 'Lisan server · on';
     return ({ openai: 'OpenAI', elevenlabs: 'ElevenLabs', custom: 'Custom endpoint' })[this.cfg.kind] + ' · on';
   };
 

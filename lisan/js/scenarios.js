@@ -567,6 +567,22 @@
     }
   ];
 
-  root.LisanContent = { CATEGORIES: CATEGORIES, SCENARIOS: SCENARIOS, COMMON: COMMON };
+  /* Free-conversation topics for the AI partner. `angle` steers the opening. */
+  const TOPICS = [
+    { id: 'day', en: 'Your day', ar: 'يومك', icon: 'sun', angle: 'Ask how their day is going and what they did, then follow whatever they mention.' },
+    { id: 'sea', en: 'The sea & the beach', ar: 'البحر والشاطئ', icon: 'waves', angle: 'Talk about trips to the sea or the beach: what they saw, did and felt. Sea life, boats, diving and fishing are all welcome.' },
+    { id: 'weekend', en: 'Weekend plans', ar: 'نهاية الأسبوع', icon: 'calendar', angle: 'Ask about their last weekend or their plans for the next one.' },
+    { id: 'travel', en: 'Travel stories', ar: 'قصص السفر', icon: 'plane', angle: 'Ask about a memorable trip, or a place they dream of visiting.' },
+    { id: 'food', en: 'Food you love', ar: 'أكلاتك المفضلة', icon: 'utensils', angle: 'Talk about favourite dishes, cooking at home and restaurants.' },
+    { id: 'work', en: 'Work & study', ar: 'العمل والدراسة', icon: 'briefcase', angle: 'Ask what they do or study, what a normal day looks like, and what they enjoy or find hard.' },
+    { id: 'family', en: 'Family & friends', ar: 'العائلة والأصدقاء', icon: 'heart', angle: 'Talk about the people close to them and what they do together. Be warm and respectful.' },
+    { id: 'sports', en: 'Sports', ar: 'الرياضة', icon: 'ball', angle: 'Talk about sports they play or watch, favourite teams and big matches.' },
+    { id: 'movies', en: 'Movies & series', ar: 'الأفلام والمسلسلات', icon: 'film', angle: 'Talk about films and series they like, and why.' },
+    { id: 'city', en: 'Your city', ar: 'مدينتك', icon: 'building', angle: 'Ask about their city: favourite places, the weather, what visitors should see.' },
+    { id: 'tech', en: 'Phones & tech', ar: 'الهواتف والتقنية', icon: 'phone', angle: 'Talk about apps, gadgets and how technology fits into their life.' },
+    { id: 'goals', en: 'Dreams & goals', ar: 'أحلامك وأهدافك', icon: 'flag', angle: 'Talk about their goals for this year and their bigger dreams, including why they are learning English.' }
+  ];
+
+  root.LisanContent = { CATEGORIES: CATEGORIES, SCENARIOS: SCENARIOS, COMMON: COMMON, TOPICS: TOPICS };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.LisanContent;
 })(typeof window !== 'undefined' ? window : globalThis);
