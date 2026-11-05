@@ -69,10 +69,12 @@
     const text = this.text.toLowerCase();
     const spans = Array.prototype.slice.call(this.enEl.querySelectorAll('.w'));
     items.forEach(function (it) {
-      const needle = String(it.text || '').toLowerCase().replace(/[.?!]+$/, '').trim();
-      if (needle.length < 2) return;
-      const at = text.indexOf(needle);
-      if (at < 0) return;
+      // The partner may adapt the phrase ("I want to visit" → "you want to
+      // visit"): fall back to the longest matching tail of at least 2 words.
+      let words = String(it.text || '').toLowerCase().replace(/[.?!,]+$/, '').trim().split(/\s+/);
+      let needle = words.join(' '), at = text.indexOf(needle);
+      while (at < 0 && words.length > 2) { words = words.slice(1); needle = words.join(' '); at = text.indexOf(needle); }
+      if (at < 0 || needle.length < 2) return;
       const end = at + needle.length;
       let first = true;
       spans.forEach(function (s) {

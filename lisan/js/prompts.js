@@ -204,6 +204,7 @@
     feedback: '{"better":"I went to the beach yesterday and saw a shark\'s fin.","fixes":[{"wrong":"I go","right":"I went","type":"tense","why_en":"Use the past tense for yesterday.","why_ar":"مع yesterday نستخدم الفعل في الماضي."}],"gaps":[{"en":"shark\'s fin","ar":"زعنفة القرش"}],"praise":""}',
     assist: '{"options":[{"en":"shark\'s fin","ar":"زعنفة القرش"},{"en":"wave","ar":"موجة"}],"cue":"Do you mean a shark\'s fin?"}',
     translate: '{"options":[{"en":"fin","ar":"زعنفة"},{"en":"shark\'s fin","ar":"زعنفة القرش"}],"cue":"In English, that\'s a fin."}',
+    report: '{"headline":"You kept the story going, even when a word was missing.","headline_ar":"واصلت القصة حتى عندما نقصتك كلمة.","scores":{"fluency":70,"grammar":62,"vocabulary":68,"confidence":75},"strengths":["You described what you saw clearly."],"focus":[{"title":"Past tense in stories","title_ar":"الماضي في القصص","wrong":"I go to the beach","right":"I went to the beach","tip_ar":"عندما تحكي شيئاً حدث، استخدم الفعل في الماضي."}],"new_words":[{"en":"shark\'s fin","ar":"زعنفة القرش"}],"say_it_better":[{"said":"I go beach yesterday","better":"I went to the beach yesterday."}],"next_step":"Tell a short story about your weekend.","next_step_ar":"احكِ قصة قصيرة عن عطلتك."}',
     hint: '{"starters":[{"en":"Last weekend I…","ar":"في عطلة الأسبوع الماضي…"},{"en":"I stayed at home and relaxed.","ar":"بقيت في البيت وارتحت."},{"en":"I went to the beach with my cousins and we had a barbecue.","ar":"ذهبت إلى الشاطئ مع أبناء عمي وشوينا."}]}'
   };
 
