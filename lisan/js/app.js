@@ -745,8 +745,8 @@
       const self = this;
       modal({
         title: 'Microphone is blocked',
-        html: '<p class="muted">Allow microphone access for this page in your browser’s site settings, then tap the mic again. You can also type your answers.</p>' +
-          '<p class="ar muted">اسمح للمتصفح باستخدام الميكروفون من إعدادات الموقع، أو اكتب إجاباتك.</p>',
+        html: '<p class="muted">Allow microphone access for this site in your browser settings, then tap the mic again. If Lisan is open inside another app or a preview, open it directly in Chrome or Safari. You can also type your answers.</p>' +
+          '<p class="ar muted">اسمح باستخدام الميكروفون من إعدادات المتصفح، أو افتح التطبيق مباشرة في Chrome أو Safari، أو اكتب إجاباتك.</p>',
         actions: [{ label: 'Type instead', kind: 'btn-soft', onClick: function () { self.setTyping(true); } }, { label: 'OK', kind: 'btn-primary' }]
       });
     } else if (code === 'network') {
